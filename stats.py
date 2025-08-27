@@ -5,7 +5,7 @@ from numba.typed import List
 from scipy.stats import mannwhitneyu, wilcoxon
 
 class ResponseCriteria:
-    def __init__(self, trial_activity, baseline_T, stimulus_T, bin_width, dt,
+    def __init__(self, trial_activity, baseline_T, stimulus_T, stimulus_onset, bin_width, dt,
                  proportion_active=1/3, direction="positive",
                  multiple_correction="simes", 
                  debug=False):
@@ -35,6 +35,7 @@ class ResponseCriteria:
     
         self.baseline_T = baseline_T
         self.stimulus_T = stimulus_T
+        self.stimulus_onset = stimulus_onset
         self.bin_width = bin_width
         self.dt = dt
     
@@ -58,13 +59,14 @@ class ResponseCriteria:
         baseline_hist : np.ndarray, shape (n_trials,)
             Spike counts in baseline per trial.
         """
-        baseline_bins = [0, self.baseline_T] # count spikes during entire baseline period, already in Hz
+        baseline_bins = [self.stimulus_onset - self.baseline_T, self.stimulus_onset] # count spikes during entire baseline period, already in Hz
         baseline_hist = np.array([np.histogram(trial, baseline_bins)[0] for trial in self.trial_activity]).ravel()
         
         if self.debug:
             assert sum(baseline_hist) == sum([sum(t <= 1) for t in self.trial_activity]), "Binned baseline spikes do not match number of baseline spikes."
 
-        return baseline_hist
+        baseline_duration = baseline_bins[1] - baseline_bins[0]
+        return baseline_hist * 1 / baseline_duration
     
     def bin_spikes(self):
         """
@@ -82,28 +84,33 @@ class ResponseCriteria:
         """
 
         # note: onset of bins is baseline time + dt, to allow border-spikes to be counted only in the baseline
-        bins_straight_up = np.arange(self.baseline_T + self.dt, (self.baseline_T + self.stimulus_T)+self.bin_width, self.bin_width) 
-        bins_betweeners = np.arange(self.baseline_T+(self.bin_width/2), (self.baseline_T + self.stimulus_T), self.bin_width)
+        bins_normal = np.arange(self.stimulus_onset + self.dt, (self.stimulus_onset + self.stimulus_T)+self.bin_width, self.bin_width) 
+        bins_interleave = np.arange(self.stimulus_onset+(self.bin_width/2), (self.stimulus_onset + self.stimulus_T), self.bin_width)
 
         # bin data, spike count / 100 ms
-        hist_straight_up = np.array([np.histogram(trial, bins_straight_up)[0] for trial in self.trial_activity])
-        hist_betweeners = np.array([np.histogram(trial, bins_betweeners)[0] for trial in self.trial_activity])
+        hist_normal = np.array([np.histogram(trial, bins_normal)[0] for trial in self.trial_activity])
+        hist_interleave = np.array([np.histogram(trial, bins_interleave)[0] for trial in self.trial_activity])
 
         if self.debug:
-            assert hist_straight_up.sum() == sum([sum(t > 1) for t in self.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
-            lower = self.baseline_T + self.bin_width/2
-            upper = self.baseline_T + self.stimulus_T - self.bin_width/2
-            assert (hist_betweeners).sum() == sum([sum((t >= lower) & (t <= upper)) for t in self.trial_activity]), "Binned stimulus spikes (interleaved period) do not match number of total stimulus spikes."
+            #print(bins_normal)
+            #print(bins_interleave)
+            assert hist_normal.sum() == sum([sum(t > 1) for t in self.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
+            lower = self.stimulus_onset + self.bin_width/2
+            upper = self.stimulus_onset + self.stimulus_T - self.bin_width/2
 
-        interleaved = np.zeros((len(self.trial_activity), len(bins_straight_up)+len(bins_betweeners)-2), int)
-        interleaved[:, ::2] = hist_straight_up
-        interleaved[:, 1::2] = hist_betweeners
+            #print(hist_interleave.sum())
+            #print(sum([sum((t >= lower) & (t <= upper)) for t in self.trial_activity]))
+            assert (hist_interleave).sum() == sum([sum((t >= lower) & (t <= upper)) for t in self.trial_activity]), "Binned stimulus spikes (interleaved period) do not match number of total stimulus spikes."
+
+        interleaved = np.zeros((len(self.trial_activity), len(bins_normal)+len(bins_interleave)-2), int)
+        interleaved[:, ::2] = hist_normal
+        interleaved[:, 1::2] = hist_interleave
 
         if self.debug:
-            assert interleaved.sum() == hist_betweeners.sum() + hist_straight_up.sum(), "Interleaved matrix does not included the expected number of spikes."
+            assert interleaved.sum() == hist_interleave.sum() + hist_normal.sum(), "Interleaved matrix does not included the expected number of spikes."
 
         # convert to rate per second, from rate per (bin width)
-        return interleaved * self.stimulus_T / self.bin_width
+        return interleaved * 1 / self.bin_width
     
     def _apply_direction_filter(self, stimulus_bin: np.ndarray, baseline_sum: np.ndarray) -> bool:
         """
@@ -180,17 +187,18 @@ class ResponseCriteria:
         pvals_binwise = np.ones(n_bins)
         direction_of_bin = np.zeros(n_bins, dtype=bool)
 
+        baseline_hist = self.baseline_hist
+
         # count number of spikes in baseline for determining response direction
-        baseline_sum = self.baseline_hist.sum()
+        baseline_sum = baseline_hist.sum()
 
         if atrials > n_trials * self.proportion_active:
-            
-            
             for bin_i in range(n_bins):
-                if (self.baseline_hist - self.interleaved[:, bin_i]).any():
-                    _, pval = wilcoxon(self.interleaved[:, bin_i], self.baseline_hist)
+                if (baseline_hist - self.interleaved[:, bin_i]).any():
+
+                    _, pval = wilcoxon(self.interleaved[:, bin_i], baseline_hist)
                 
-                elif not (self.baseline_hist - self.interleaved[:, bin_i]).any():
+                elif not (baseline_hist - self.interleaved[:, bin_i]).any():
                     pval = -1
                 
                 direction_of_bin[bin_i] = self._apply_direction_filter(self.interleaved[:, bin_i], baseline_sum)

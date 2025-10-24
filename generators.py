@@ -1,5 +1,6 @@
 import numpy as np
 import numba as nb
+from scipy.stats import beta
 
 @nb.njit
 def _force_renewal_process_numba(spike_train, kappa):
@@ -23,10 +24,12 @@ def _generate_trials_numba(r_t, dt, n_trials, induce_refractory, kappa):
     
     return trials
 
+from scipy.ndimage import gaussian_filter
+
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
                  latency, duration, dt, baseline_T, stimulus_T, 
-                 induce_refractory_period=False, kappa=4):
+                 induce_refractory_period=False, kappa=4, a=None, b=None):
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
         self.latency = latency
@@ -39,6 +42,8 @@ class PoissonSpikeGenerator:
 
         self.induce_refractory_period = induce_refractory_period
         self.kappa = kappa
+        self.a = a
+        self.b = b
 
         self.r_t = self._build_rate_function()
         self.p = self.r_t * dt # prob of a spike in each time bin as a function of the time-varying rate
@@ -50,7 +55,18 @@ class PoissonSpikeGenerator:
         # overwrite the response period with the response FR
         response_onset = int(self.latency / self.dt) + int(self.baseline_T / self.dt)
         response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(self.baseline_T / self.dt) 
-        r_t[response_onset:response_offset] = self.response_fr
+        
+        if self.a and self.b:
+            x_ = np.linspace(0, 1, response_offset - response_onset)
+            r_ = beta.pdf(x_, self.a, self.b)
+
+            fr_response = self.response_fr - self.baseline_fr
+            r_r = r_ * fr_response / np.max(r_) +  self.baseline_fr
+            r_t[response_onset:response_offset] = r_r
+
+        else:       
+            r_t[response_onset:response_offset] = self.response_fr
+
         return r_t
     
     def _force_renewal_process(self, spike_train):

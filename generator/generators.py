@@ -1,3 +1,45 @@
+""" 
+generators
+==========
+
+Response generator functions and classes. 
+
+Use:
+----
+
+# simulation parameters
+baseline_fr  = 40
+response_fr  = 0
+latency      = 0.350
+duration     = 1.
+baseline_T   = 2
+stimulus_T   = 2
+dt           = 0.001
+induce_refractory_period = True
+a            = 1.6
+b            = 1.8
+
+n_trials = 30
+
+# initialize generator with the variables
+generator = PoissonSpikeGenerator(
+    baseline_fr=baseline_fr,
+    response_fr=response_fr,
+    latency=latency,
+    duration=duration,
+    baseline_T=baseline_T,
+    stimulus_T=stimulus_T,
+    dt=dt,
+    induce_refractory_period=induce_refractory_period,
+    a=a,
+    b=b,
+)
+
+# generate trials
+trial_activity = generator.generate(n_trials)
+
+"""
+
 import numpy as np
 import numba as nb
 from scipy.stats import beta

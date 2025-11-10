@@ -1,3 +1,23 @@
+""" 
+matlab.io
+=========
+
+Helper functions for making pandas DataFrames Matlab-interpretable. 
+
+Use:
+----
+...
+dataset = pd.concat((df_nc, df_c))
+dataset_randomized = dataset.sample(frac=1, random_state=rng.integers(1e9)).reset_index(drop=True)
+
+mat_dict = {col: dataset_randomized[col].to_numpy() for col in dataset_randomized.columns}
+
+cell_cols = ["rasters", "supp_rasters"]  # adjust as needed
+matdict = force_cells_for_columns(dataset_randomized, cell_cols)
+
+savemat(path_save / f"{datetime.today().strftime('%Y-%m-%d')}_{int(n_samples)}_simulated_responses.mat", mat_dict)
+"""
+
 import numpy as np
 from scipy.io import savemat
 

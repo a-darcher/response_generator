@@ -1,3 +1,23 @@
+"""
+plot_utils
+==========
+
+Create summary visualizations of a generated response.
+
+Use:
+----
+n_trials = 10
+
+generator = PoissonSpikeGenerator(...)
+trial_activity = generator.generate(n_trials)
+criteria = ResponseCriteria(...)
+
+params = grab_fields(generator, criteria, n_trials)
+fig = SpikeSummaryFigure(trial_activity, generator, criteria, params)
+fig.build()
+plt.show()
+"""
+
 from dataclasses import dataclass, fields
 from datetime import datetime
 

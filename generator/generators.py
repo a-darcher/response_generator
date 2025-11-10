@@ -2,6 +2,8 @@ import numpy as np
 import numba as nb
 from scipy.stats import beta
 
+from config import default_seed
+
 @nb.njit
 def _force_renewal_process_numba(spike_train, kappa):
     if spike_train.size == 0:
@@ -24,12 +26,10 @@ def _generate_trials_numba(r_t, dt, n_trials, induce_refractory, kappa):
     
     return trials
 
-from scipy.ndimage import gaussian_filter
-
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
                  latency, duration, dt, baseline_T, stimulus_T, 
-                 induce_refractory_period=False, kappa=4, a=None, b=None):
+                 induce_refractory_period=False, kappa=4, a=None, b=None, rng=None):
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
         self.latency = latency
@@ -48,6 +48,11 @@ class PoissonSpikeGenerator:
         self.r_t = self._build_rate_function()
         self.p = self.r_t * dt # prob of a spike in each time bin as a function of the time-varying rate
         
+        if rng is None: 
+            self.rng = default_seed
+        else:
+            self.rng = rng
+
     def _build_rate_function(self):
         # set the baseline fr for all bins
         r_t = np.full(self.total_bins, float(self.baseline_fr))
@@ -102,14 +107,14 @@ class PoissonSpikeGenerator:
         p = self.p
 
         if n_trials == 1:
-            hits = np.random.rand(self.total_bins) <= p
+            hits = self.rng.random(self.total_bins) <= p
             idx = np.flatnonzero(hits)
             spike_times = idx.astype(float) * dt
             if self.induce_refractory_period:
                 spike_times = self._force_renewal_process(spike_times)
             return spike_times if squeeze else [spike_times]
 
-        hits = np.random.rand(n_trials, self.total_bins) <= p
+        hits = self.rng.random(size=(n_trials, self.total_bins)) <= p
         trials: list[np.ndarray] = []
         for i in range(n_trials):
             idx = np.flatnonzero(hits[i])

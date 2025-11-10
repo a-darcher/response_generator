@@ -117,6 +117,7 @@ class PoissonSpikeGenerator:
 
             if self.induce_refractory_period:
                 ti = self._force_renewal_process(ti)
+                
             trials.append(ti)
         return trials
             

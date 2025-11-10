@@ -108,12 +108,18 @@ class ResponseSimulator:
             ratios = self.determine_response_firing_gain(n_trials_list)
             fr_response = fr_baseline * ratios
 
-            beta_a_s = rng.uni....
+            beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)
+            beta_multiplier_s = self.rng.uniform(cfg.beta_multiplier_range[0], cfg.beta_multiplier_range[1], size=cfg.n_samples)
+            beta_b_s = beta_a_s * beta_multiplier_s
 
         elif cfg.response_type == "baseline":
-
+            fr_response = fr_baseline
+            beta_a_s = np.full(len(n_trials_list), np.nan)
+            beta_b_s = np.full(len(n_trials_list), np.nan)
         else:
             raise TypeError
+
+        return fr_response, beta_a_s, beta_b_s
 
     def run(self) -> pd.DataFrame:
         cfg = self.cfg

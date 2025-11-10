@@ -138,12 +138,14 @@ class ResponseSimulator:
             "n_trials": n_trials_list.astype(dtype=np.int8),
             "response": np.zeros(cfg.n_samples, dtype=np.int8),
             "fr_baseline": fr_baseline.astype(float),
-            "fr_response": fr_baseline.astype(float),
+            "fr_response": fr_response.astype(float),
             "latency": np.full(cfg.n_samples, cfg.latency, dtype=float),
             "duration": np.full(cfg.n_samples, cfg.duration, dtype=float),
             "time_baseline": np.full(cfg.n_samples, cfg.baseline_T, dtype=float),
             "time_stimulus": np.full(cfg.n_samples, cfg.stimulus_T, dtype=float),
             "refractory_period_induced": np.ones(cfg.n_samples, dtype=np.int8),
+            "beta_a": beta_a_s.astype(float),
+            "beta_b_s": beta_b_s.astype(float),
         })
         
         rasters = [None] * cfg.n_samples

@@ -44,7 +44,7 @@ class SimulationConfig:
     duration: float
     baseline_T: float
     stimulus_T: float
-    df: float = 0.001
+    dt: float = 0.001
     induce_refractory_period: bool = True
 
     gain_low_trial = 20
@@ -101,6 +101,20 @@ class ResponseSimulator:
             n_supplement_trials = n_trials * self.cfg.supplementary_default_factor
         return n_supplement_trials
 
+    def handle_response_type(self, n_trials_list, fr_baseline):
+        cfg = self.cfg
+
+        if cfg.response_type == "response":
+            ratios = self.determine_response_firing_gain(n_trials_list)
+            fr_response = fr_baseline * ratios
+
+            beta_a_s = rng.uni....
+
+        elif cfg.response_type == "baseline":
+
+        else:
+            raise TypeError
+
     def run(self) -> pd.DataFrame:
         cfg = self.cfg
         rng = self.rng
@@ -108,12 +122,14 @@ class ResponseSimulator:
         u = rng.uniform(size=cfg.n_samples)
         fr_baseline = cfg.threshold - cfg.scale * np.log(u)
 
-        n_trials_no_response = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtpye=int)
+        n_trials_list = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtpye=int)
         if cfg.generate_supplementary_trials:
-            n_supplement_trials = np.vectorize(self.determine_extra_trial_counts)(n_trials_no_response)
+            n_supplement_trials = np.vectorize(self.determine_extra_trial_counts)(n_trials_list)
+        
+        fr_response, beta_a_s, beta_b_s = self.handle_response_type(n_trials_list, fr_baseline)
 
         df = pd.DataFrame({
-            "n_trials": n_trials_no_response.astype(dtype=np.int8),
+            "n_trials": n_trials_list.astype(dtype=np.int8),
             "response": np.zeros(cfg.n_samples, dtype=np.int8),
             "fr_baseline": fr_baseline.astype(float),
             "fr_response": fr_baseline.astype(float),
@@ -129,7 +145,7 @@ class ResponseSimulator:
             supplement_trials = [None] * cfg.n_samples
 
         for i, fr in enumerate(tqdm(fr_baseline)):
-            n_trials = n_trials_no_response[i]
+            n_trials = n_trials_list[i]
             n_supplement_trials = self.determine_extra_trial_counts(n_trials)
 
             baseline_fr  = fr

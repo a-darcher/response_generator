@@ -1,5 +1,5 @@
     n_samples: 20
-    response_type: "response"
+    response_type: "baseline"
 
     # trial params
     min_trial_num: 10
@@ -35,3 +35,4 @@
 
     seed: 73
     save_dir:  "/media/al/sansidk/simulated_responses/dev"
+    save_language: "python"

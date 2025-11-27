@@ -1,10 +1,22 @@
+"""
+pipeline.py — simulate a set of responses using parameters from a config file.
 
+Author: Alana Darcher
+Email: darcher@tuta.io
+Date: 2025-Nov-27
+
+Example Usage:
+$ python3 pipeline.py --config configs/test.yaml
+
+"""
 
 from __future__ import annotations
 from typing import Optional, Tuple, List, Iterable, Dict, Any
 import yaml
 import sys
 sys.path.append("/home/al/Documents/code/generate_responses/generator")
+
+import shutil
 
 from pathlib import Path
 from datetime import datetime
@@ -27,6 +39,7 @@ from stats import ResponseCriteria
 class SimulationConfig: 
     n_samples: int
     save_dir: Path
+    save_language: str
 
     # trial params
     min_trial_num: int
@@ -56,8 +69,6 @@ class SimulationConfig:
     gain_low_trial: int = 20
     gain_high_trial: int = 10
 
-
-
     # supplementary trials params
     generate_supplementary_trials: bool = True
     supplementary_threshold: int = 50
@@ -86,7 +97,10 @@ class ResponseSimulator:
     def __init__(self, cfg: SimulationConfig):
         self.cfg = cfg
         self.rng = np.random.default_rng(seed=cfg.seed)
-        self.save_dir = cfg.save_dir
+
+        self.time_str = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+
+        self.save_dir = cfg.save_dir / self.time_str
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
     def _determine_response_firing_gain(self, trial_list):
@@ -129,8 +143,8 @@ class ResponseSimulator:
 
         elif cfg.response_type == "baseline":
             fr_response = fr_baseline
-            beta_a_s = np.full(len(n_trials_list), np.nan)
-            beta_b_s = np.full(len(n_trials_list), np.nan)
+            beta_a_s = np.full(len(n_trials_list), None)
+            beta_b_s = np.full(len(n_trials_list), None)
         else:
             raise TypeError
 
@@ -150,7 +164,6 @@ class ResponseSimulator:
             raise ValueError
         
         return durations
-
 
     def run(self) -> pd.DataFrame:
         cfg = self.cfg
@@ -205,8 +218,8 @@ class ResponseSimulator:
             dt=cfg.dt,
             induce_refractory_period=cfg.induce_refractory_period,
             rng=rng,
-            a=1,
-            b=2, 
+            a=a,
+            b=a, 
             )
 
             # generate trials
@@ -249,13 +262,13 @@ class ResponseSimulator:
         baseline_fr: float,
         response_fr: float,
         duration: float,
-        a: float,
-        b: float,
+        a: float | None,
+        b: float | None,
         generator: PoissonSpikeGenerator,
         trial_activity: List[np.ndarray],
     ) -> None:
+        
         cfg = self.cfg
-
 
         fig, axes = plt.subplot_mosaic(
         [
@@ -309,20 +322,33 @@ class ResponseSimulator:
         ax.set_ylim(0, 1)
         ax.set_anchor('NW')
 
-        s = (
-            f"{n_trials} trials\n\n"
-            f"params [time in sec]:\n"
-            f"baseline FR: {round(baseline_fr, 3)} Hz\n"
-            f"response FR: {round(response_fr, 3)} Hz\n"
-            f"latency: {cfg.latency}\n"
-            f"duration: {round(duration, 3)} s\n"
-            f"baseline_T: {cfg.baseline_T} s\n"
-            f"stimulus_T: {cfg.stimulus_T} s\n"
-            f"dt: {cfg.dt} s\n"
-            f"induce_refractory: {cfg.induce_refractory_period}\n"
-            f"beta({round(a, 3)}, {round(b, 3)})"
-
-        )
+        if bool(a):
+            s = (
+                f"{n_trials} trials\n\n"
+                f"params [time in sec]:\n"
+                f"baseline FR: {round(baseline_fr, 3)} Hz\n"
+                f"response FR: {round(response_fr, 3)} Hz\n"
+                f"latency: {cfg.latency}\n"
+                f"duration: {round(duration, 3)} s\n"
+                f"baseline_T: {cfg.baseline_T} s\n"
+                f"stimulus_T: {cfg.stimulus_T} s\n"
+                f"dt: {cfg.dt} s\n"
+                f"induce_refractory: {cfg.induce_refractory_period}\n"
+                f"beta({round(a, 3)}, {round(b, 3)})"
+            )
+        else:
+                        s = (
+                f"{n_trials} trials\n\n"
+                f"params [time in sec]:\n"
+                f"baseline FR: {round(baseline_fr, 3)} Hz\n"
+                f"response FR: {round(response_fr, 3)} Hz\n"
+                f"latency: {cfg.latency}\n"
+                f"duration: {round(duration, 3)} s\n"
+                f"baseline_T: {cfg.baseline_T} s\n"
+                f"stimulus_T: {cfg.stimulus_T} s\n"
+                f"dt: {cfg.dt} s\n"
+                f"induce_refractory: {cfg.induce_refractory_period}\n"
+            )
 
         ax.text(
             0.0, 1.0,
@@ -338,8 +364,11 @@ class ResponseSimulator:
 
         sns.despine(left=True, bottom=True, ax=ax)
                 
-        fname = f"{i}_{n_trials}trials_{int(baseline_fr)}bFR_{int(response_fr)}rFR_{round(duration,2)}duration_beta{round(a,2)}-{round(b,2)}.png"
-        fig.savefig(cfg.save_dir / "example_responses" / fname)
+        if bool(a):
+            fname = f"{i}_{n_trials}trials_{int(baseline_fr)}bFR_{int(response_fr)}rFR_{round(duration,2)}duration_beta{round(a,2)}-{round(b,2)}.png"
+        else:
+            fname = f"{i}_{n_trials}trials_{int(baseline_fr)}bFR_{int(response_fr)}rFR_{round(duration,2)}duration.png"
+        fig.savefig(self.save_dir / "example_responses" / fname)
         plt.close(fig)
 
 # convenience functions
@@ -355,11 +384,27 @@ def _parse_cli_args(argv= None) -> Dict[str, Any]:
     args = p.parse_args(list(argv) if argv is not None else None)
     return {"config_path": args.config}
 
+def _parse_save_by_language(cfg, save_path, df, fname):
+    if cfg.save_language == "python":
+        df.to_parquet(save_path / f"{fname}.parquet")
+    elif cfg.save_language == "matlab":
+        mat_dict = {col: df[col].to_numpy() for col in df.columns}
+        savemat(save_path / f"{fname}.mat", {"data": mat_dict})
+
+def _copy_config_file(config_path, save_path):
+    shutil.copy(config_path, f"{save_path}/run_config.yaml")
+
 def main(argv=None):
     args = _parse_cli_args(argv)
     cfg = SimulationConfig.from_yaml(args["config_path"])
-    df = run(cfg)
+
+    rs = ResponseSimulator(cfg)
+    df = rs.run()
     
+    config_fname = Path(args["config_path"]).name
+    fname = f"{cfg.response_type}_{cfg.n_samples}samples_{config_fname}-config_{rs.time_str}"
+    _parse_save_by_language(cfg, rs.save_dir, df, fname)
+    _copy_config_file(args["config_path"], rs.save_dir)
     
 if __name__ == "__main__":
     main()

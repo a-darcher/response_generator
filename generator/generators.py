@@ -151,11 +151,3 @@ class PoissonSpikeGenerator:
             trials.append(ti)
         return trials
             
-    def generate_numba(self, n_trials: int = 1, squeeze: bool = True):
-        spikes = _generate_trials_numba(
-            self.r_t, self.dt, n_trials,
-            self.induce_refractory_period, self.kappa
-        )
-        if n_trials == 1 and squeeze:
-            return spikes[0]
-        return spikes

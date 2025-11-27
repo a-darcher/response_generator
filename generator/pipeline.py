@@ -1,3 +1,5 @@
+
+
 from __future__ import annotations
 from typing import Optional, Tuple, List, Iterable, Dict, Any
 import yaml
@@ -10,7 +12,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
-import tqdm as tqdm
+from tqdm import tqdm
 from scipy.io import savemat 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -24,7 +26,7 @@ from stats import ResponseCriteria
 @dataclass(frozen=True)
 class SimulationConfig: 
     n_samples: int
-    response_type: str = "response"
+    save_dir: Path
 
     # trial params
     min_trial_num: int
@@ -36,19 +38,25 @@ class SimulationConfig:
 
     # beta params
     beta_a_range: tuple
-    beta_multiplier_range = tuple
+    beta_multiplier_range: tuple
 
     # response params
-    duration_range: tuple
+    duration_range: None
+    duration: None
+    
     latency: float
-    duration: float
     baseline_T: float
     stimulus_T: float
+
+    response_type: str = "response"
+
     dt: float = 0.001
     induce_refractory_period: bool = True
 
-    gain_low_trial = 20
-    gain_high_trial = 10
+    gain_low_trial: int = 20
+    gain_high_trial: int = 10
+
+
 
     # supplementary trials params
     generate_supplementary_trials: bool = True
@@ -57,10 +65,17 @@ class SimulationConfig:
     supplementary_default_factor: int = 5
 
     seed: int = default_seed
-    save_dir: Path
-
+    
     @staticmethod
     def from_yaml(path: Path) -> "SimulationConfig":
+        """Construct a SimulationConfig dataclass from a config file.
+
+        Args:
+            path (Path): path to the config file
+
+        Returns:
+            SimulationConfig: dataclass instance
+        """
         with open(path, "r") as f:
             d = yaml.safe_load(f)
         
@@ -74,7 +89,7 @@ class ResponseSimulator:
         self.save_dir = cfg.save_dir
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
-    def determine_response_firing_gain(self, trial_list):
+    def _determine_response_firing_gain(self, trial_list):
         """Set the increase in firing rate for the response period conditioned on the number of trials.
 
         Args:
@@ -89,23 +104,23 @@ class ResponseSimulator:
         low_trials_mask = trial_list <= 10
         high_trials_mask = ~low_trials_mask
 
-        fr_responses[low_trials_mask] = self.gain_low_trial - 3 * np.log(self.rng.uniform(size=low_trials_mask.sum()))
-        fr_responses[high_trials_mask] = self.gain_high_trial - 3 * np.log(self.rng.uniform(size=high_trials_mask.sum()))
+        fr_responses[low_trials_mask] = self.cfg.gain_low_trial - 3 * np.log(self.rng.uniform(size=low_trials_mask.sum()))
+        fr_responses[high_trials_mask] = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=high_trials_mask.sum()))
         
         return fr_responses
     
-    def determine_extra_trial_counts(self, n_trials):
+    def _determine_extra_trial_counts(self, n_trials):
         if n_trials < self.cfg.supplementary_threshold:
             n_supplement_trials = self.cfg.supplementary_default_count
         else:
             n_supplement_trials = n_trials * self.cfg.supplementary_default_factor
         return n_supplement_trials
 
-    def handle_response_type(self, n_trials_list, fr_baseline):
+    def _handle_response_type(self, n_trials_list, fr_baseline):
         cfg = self.cfg
 
         if cfg.response_type == "response":
-            ratios = self.determine_response_firing_gain(n_trials_list)
+            ratios = self._determine_response_firing_gain(n_trials_list)
             fr_response = fr_baseline * ratios
 
             beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)
@@ -120,6 +135,22 @@ class ResponseSimulator:
             raise TypeError
 
         return fr_response, beta_a_s, beta_b_s
+    
+    def _handle_durations(self,) -> np.array:
+        cfg = self.cfg
+        rng = self.rng
+
+        assert bool(cfg.duration) != bool(cfg.duration_range), "Duration must be specified by `duration` or `duration_range`, but not both."
+
+        if cfg.duration:
+            durations = np.full(cfg.n_samples, cfg.duration)
+        elif cfg.duration_range:
+            durations = rng.uniform(cfg.duration_range[0], cfg.duration_range[1], size=cfg.n_samples)
+        else:
+            raise ValueError
+        
+        return durations
+
 
     def run(self) -> pd.DataFrame:
         cfg = self.cfg
@@ -128,47 +159,54 @@ class ResponseSimulator:
         u = rng.uniform(size=cfg.n_samples)
         fr_baseline = cfg.threshold - cfg.scale * np.log(u)
 
-        n_trials_list = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtpye=int)
+        n_trials_list = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtype=int)
         if cfg.generate_supplementary_trials:
-            n_supplement_trials = np.vectorize(self.determine_extra_trial_counts)(n_trials_list)
+            n_supplement_trials = np.vectorize(self._determine_extra_trial_counts)(n_trials_list)
         
-        fr_response, beta_a_s, beta_b_s = self.handle_response_type(n_trials_list, fr_baseline)
+        fr_response, beta_a_s, beta_b_s = self._handle_response_type(n_trials_list, fr_baseline)
+        durations = self._handle_durations()
 
         df = pd.DataFrame({
             "n_trials": n_trials_list.astype(dtype=np.int8),
-            "response": np.zeros(cfg.n_samples, dtype=np.int8),
+            "response": np.full(cfg.n_samples, cfg.response_type, dtype=str),
             "fr_baseline": fr_baseline.astype(float),
             "fr_response": fr_response.astype(float),
             "latency": np.full(cfg.n_samples, cfg.latency, dtype=float),
-            "duration": np.full(cfg.n_samples, cfg.duration, dtype=float),
+            "duration": durations,
             "time_baseline": np.full(cfg.n_samples, cfg.baseline_T, dtype=float),
             "time_stimulus": np.full(cfg.n_samples, cfg.stimulus_T, dtype=float),
             "refractory_period_induced": np.ones(cfg.n_samples, dtype=np.int8),
             "beta_a": beta_a_s.astype(float),
-            "beta_b_s": beta_b_s.astype(float),
+            "beta_b": beta_b_s.astype(float),
         })
-        
+
         rasters = [None] * cfg.n_samples
         if cfg.generate_supplementary_trials:
             supplement_trials = [None] * cfg.n_samples
 
         for i, fr in enumerate(tqdm(fr_baseline)):
             n_trials = n_trials_list[i]
-            n_supplement_trials = self.determine_extra_trial_counts(n_trials)
+            n_supplement_trials = self._determine_extra_trial_counts(n_trials)
 
             baseline_fr  = fr
-            response_fr  = fr
+            response_fr  = fr_response[i]
+
+            duration = durations[i]
+            a = beta_a_s[i]
+            b = beta_b_s[i]
 
             generator = PoissonSpikeGenerator(
             baseline_fr=baseline_fr,
             response_fr=response_fr,
             latency=cfg.latency,
-            duration=cfg.duration,
+            duration=duration,
             baseline_T=cfg.baseline_T,
             stimulus_T=cfg.stimulus_T,
             dt=cfg.dt,
             induce_refractory_period=cfg.induce_refractory_period,
             rng=rng,
+            a=1,
+            b=2, 
             )
 
             # generate trials
@@ -182,6 +220,9 @@ class ResponseSimulator:
             rasters[i] = trial_activity
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
+
+            if i < 10:
+                self._plot_example(i, n_trials, baseline_fr, response_fr, duration, a, b, generator, trial_activity)
 
         df["rasters"] = rasters
         if cfg.generate_supplementary_trials:
@@ -203,7 +244,6 @@ class ResponseSimulator:
 
     def _plot_example(
         self,
-        *,
         i: int,
         n_trials: int,
         baseline_fr: float,
@@ -275,10 +315,10 @@ class ResponseSimulator:
             f"baseline FR: {round(baseline_fr, 3)} Hz\n"
             f"response FR: {round(response_fr, 3)} Hz\n"
             f"latency: {cfg.latency}\n"
-            f"duration: {duration}\n"
-            f"baseline_T: {cfg.baseline_T}\n"
-            f"stimulus_T: {cfg.stimulus_T}\n"
-            f"dt: {cfg.dt}\n"
+            f"duration: {round(duration, 3)} s\n"
+            f"baseline_T: {cfg.baseline_T} s\n"
+            f"stimulus_T: {cfg.stimulus_T} s\n"
+            f"dt: {cfg.dt} s\n"
             f"induce_refractory: {cfg.induce_refractory_period}\n"
             f"beta({round(a, 3)}, {round(b, 3)})"
 
@@ -319,6 +359,7 @@ def main(argv=None):
     args = _parse_cli_args(argv)
     cfg = SimulationConfig.from_yaml(args["config_path"])
     df = run(cfg)
+    
     
 if __name__ == "__main__":
     main()

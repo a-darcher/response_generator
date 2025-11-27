@@ -39,34 +39,12 @@ generator = PoissonSpikeGenerator(
 trial_activity = generator.generate(n_trials)
 
 """
+import sys
 
 import numpy as np
-import numba as nb
 from scipy.stats import beta
 
 from config import default_seed
-
-@nb.njit
-def _force_renewal_process_numba(spike_train, kappa):
-    if spike_train.size == 0:
-            return spike_train
-    return spike_train[kappa-1::kappa]
-
-@nb.njit
-def _generate_trials_numba(r_t, dt, n_trials, induce_refractory, kappa):
-    total_bins = r_t.size
-    trials = []
-
-    for trial in range(n_trials):
-        hits = np.random.rand(total_bins) <= (r_t * dt)
-        spike_times = np.nonzero(hits)[0].astype(np.float64) * dt
-
-        if induce_refractory:
-            spike_times = _force_renewal_process_numba(spike_times, kappa)
-        
-        trials.append(spike_times)
-    
-    return trials
 
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
@@ -98,18 +76,23 @@ class PoissonSpikeGenerator:
     def _build_rate_function(self):
         # set the baseline fr for all bins
         r_t = np.full(self.total_bins, float(self.baseline_fr))
-        
+
         # overwrite the response period with the response FR
         response_onset = int(self.latency / self.dt) + int(self.baseline_T / self.dt)
         response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(self.baseline_T / self.dt) 
-        
+
         if self.a and self.b:
             x_ = np.linspace(0, 1, response_offset - response_onset)
             r_ = beta.pdf(x_, self.a, self.b)
 
             fr_response = self.response_fr - self.baseline_fr
             r_r = r_ * fr_response / np.max(r_) +  self.baseline_fr
-            r_t[response_onset:response_offset] = r_r
+
+            try:
+                r_t[response_onset:response_offset] = r_r
+            except ValueError:
+                print(f"stimulus time ({self.stimulus_T}) can't accomodate the response duration ({self.duration}) and latency ({self.latency}).")
+                sys.exit(1)
 
         else:       
             r_t[response_onset:response_offset] = self.response_fr
@@ -176,25 +159,3 @@ class PoissonSpikeGenerator:
         if n_trials == 1 and squeeze:
             return spikes[0]
         return spikes
-
-    # def generate_trial(self):
-
-    #     spike_train = []
-        
-    #     t = 0
-    #     while t < (self.baseline_T + self.stimulus_T) / self.dt:
-    #         x_i = np.random.random()
-    #         r_i = self.r_t[t]
-
-    #         if x_i <= r_i * self.dt:
-    #             spike_train.append(t * self.dt)
-    #         t += 1
-
-    #     if self.induce_refractory_period:
-    #         spike_train = self._force_renewal_process(np.array(spike_train), self.kappa)
-
-    #     return np.array(spike_train)
-    
-    # def generate_trials(self, n_trials):
-    #     return [self.generate_trial() for _ in range(n_trials)]
-

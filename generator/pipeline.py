@@ -131,6 +131,23 @@ class ResponseSimulator:
         return n_supplement_trials
 
     def _handle_response_type(self, n_trials_list, fr_baseline):
+        """Set generation parameters according to response type. 
+        Types: 
+        - 'response' - simulates a stimulus-elicited change in firing by varying the probability of response after onset
+        - 'baseline' - no change in firing after stimulus 'onset'
+
+        Args:
+            n_trials_list (list): trials counts for each sample to be generated
+            fr_baseline (float): firing rate during the baseline period
+
+        Raises:
+            TypeError: non-implemented response type
+
+        Returns:
+            fr_response: np.array, peak firing rate during the response period for each trial 
+            beta_a_s: np.array, alpha parameters for specifying a Beta distribution for each trial's rate function
+            beta_b_s: np.array, beta parameters for specifying a Beta distribution for each trial's rate function
+        """
         cfg = self.cfg
 
         if cfg.response_type == "response":
@@ -151,6 +168,15 @@ class ResponseSimulator:
         return fr_response, beta_a_s, beta_b_s
     
     def _handle_durations(self,) -> np.array:
+        """Handle response duration input. 
+        Durations can either be a scalar (float) or a tuple giving the edges of a range from which durations should be drawn.
+
+        Raises:
+            ValueError: can only input either a scalar value or a tuple, but not both.
+
+        Returns:
+            np.array: duration of the response for each trial
+        """
         cfg = self.cfg
         rng = self.rng
 
@@ -166,6 +192,11 @@ class ResponseSimulator:
         return durations
 
     def run(self) -> pd.DataFrame:
+        """Runner for simulating the specified batch of units.
+
+        Returns:
+            pd.DataFrame: collection of simulating trial-wise activity and collected parameters
+        """
         cfg = self.cfg
         rng = self.rng
 
@@ -245,6 +276,11 @@ class ResponseSimulator:
         
     # plot functions
     def _plot_trial_hist(self, n_trial_responses: np.ndarray) -> None:
+        """Plot the distribution of the number of trials in a simulated batch. 
+
+        Args:
+            n_trial_responses (np.ndarray): list of trial amounts
+        """
         ts = f"{datetime.today():%Y-%m-%d}"
         plt.figure(figsize=(5, 3))
         plt.hist(n_trial_responses, bins=100)
@@ -267,7 +303,19 @@ class ResponseSimulator:
         generator: PoissonSpikeGenerator,
         trial_activity: List[np.ndarray],
     ) -> None:
-        
+        """Plot an example response.
+
+        Args:
+            i (int): sample index
+            n_trials (int): number of trials in sample
+            baseline_fr (float): baseline firing rate
+            response_fr (float): peak response firing rate
+            duration (float): duration of the response
+            a (float | None): Beta distribution alpha param
+            b (float | None): Beta distribution beta param
+            generator (PoissonSpikeGenerator): unit's class instance
+            trial_activity (List[np.ndarray]): simulated trial-wise spiking activity
+        """
         cfg = self.cfg
 
         fig, axes = plt.subplot_mosaic(

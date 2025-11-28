@@ -1,8 +1,6 @@
 import numpy as np
-import numba as nb
-from numba.typed import List
 
-from scipy.stats import mannwhitneyu, wilcoxon
+from scipy.stats import wilcoxon
 
 class ResponseCriteria:
     def __init__(self, trial_activity, baseline_T, stimulus_T, stimulus_onset, bin_width, dt,

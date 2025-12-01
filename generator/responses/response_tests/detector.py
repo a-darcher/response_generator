@@ -19,12 +19,12 @@ class ResponseDetector:
             For 'positive', total spikes in the bin >= baseline_sum.
             For 'negative', total spikes in the bin  < baseline_sum.
             """
-            if self.direction == "positive":
+            if self.data.cfg.direction == "positive":
                 return stimulus_bin.sum() >= baseline_sum
-            elif self.direction == "negative":
+            elif self.data.cfg.direction == "negative":
                 return stimulus_bin.sum() < baseline_sum
             else:
-                raise ValueError(f"Direction of response ({self.direction!r}) not recognized.")
+                raise ValueError(f"Direction of response ({self.data.cfg.direction!r}) not recognized.")
         
     def _multiple_correction(self, pvals_binwise, *, method: str | None = None,
                                    preserve_order: bool = False) -> np.ndarray:
@@ -46,7 +46,7 @@ class ResponseDetector:
         np.ndarray
             Adjusted p-values (order depends on preserve_order).
         """
-        method = (method or self.multiple_correction).lower()
+        method = (method or self.data.cfg.multiple_correction).lower()
 
         if method == "none":
             return pvals_binwise
@@ -69,3 +69,37 @@ class ResponseDetector:
         raise ValueError(f"multiple_correction not recognized: {method!r}")
     
     def compute_min_pval(self) -> float:
+        """
+        Isolate the binwise pvalue evalutation. 
+        """
+        cfg = self.data.cfg
+        baseline_hist = self.data.baseline_hist
+        response_hist = self.data.response_hist
+
+        n_trials = response_hist.shape[0]
+        n_bins = response_hist.shape[1]
+
+        atrials = response_hist.any(1).sum()
+
+        pvals_binwise = np.ones(n_bins)
+        direction_of_bin = np.zeros(n_bins, dtype=bool)
+
+        baseline_sum = baseline_hist.sum()
+
+        if atrials > n_trials * cfg.proportion_active:
+            for bin_i in range(n_bins):
+                if (baseline_hist - response_hist[:, bin_i]).any():
+
+                    _, pval = self.test(response_hist, baseline_hist)
+                    
+                elif not (baseline_hist - response_hist[:, bin_i]).any():
+                    pval = -1
+                
+            direction_of_bin[bin_i] = self._direction_mask(response_hist[:, bin_i], baseline_sum)
+            pvals_binwise[bin_i] = pval
+
+        pvals_binwise[~direction_of_bin] = 1
+        pvals_binwise = self._multiple_correction(pvals_binwise)
+
+        pval_abs = np.abs(pvals_binwise)
+        return pval_abs.min()

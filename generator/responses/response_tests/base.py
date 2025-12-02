@@ -1,12 +1,9 @@
-import sys
-sys.path.append("/home/al/Documents/code/generate_responses/generator")
-
+# responses/response_tests/base.py
 from abc import ABC, abstractmethod
 
 import numpy as np
 
-from responses.config import ResponseData
-
+from ..config import ResponseData
 
 class ResponseTest(ABC):
     @abstractmethod

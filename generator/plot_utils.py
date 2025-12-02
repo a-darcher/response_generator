@@ -51,17 +51,22 @@ def _filter_attrs(obj, cls):
     valid = {f.name for f in fields(cls)}
     return {k: getattr(obj, k) for k in valid if hasattr(obj, k)}
 
-def grab_fields(generator, criteria, n_trials):
-    return SpikePlotParams(n_trials=n_trials, direction=criteria.direction, multiple_correction=criteria.multiple_correction,
-                         baseline_T_stat=criteria.baseline_T, proportion_active=criteria.proportion_active, bin_width=criteria.bin_width,
+def grab_fields(generator, detector, n_trials):
+    cfg = detector.data.cfg
+    return SpikePlotParams(n_trials=n_trials, 
+                           direction=cfg.direction, 
+                           multiple_correction=cfg.multiple_correction,
+                           baseline_T_stat=cfg.baseline_T, 
+                           proportion_active=cfg.proportion_active, 
+                           bin_width=cfg.bin_width,
                          **_filter_attrs(generator, SpikePlotParams),)
 
 class SpikeSummaryFigure: 
-    def __init__(self, trial_activity, generator, criteria, params: SpikePlotParams):
+    def __init__(self, trial_activity, generator, detector, ):
         self.trial_activity = trial_activity
         self.generator = generator
-        self.criteria = criteria
-        self.params = params
+        self.detector = detector
+        self.params = grab_fields(generator, detector, len(trial_activity))
         self.fig = None
         self.axes = None
 
@@ -106,8 +111,8 @@ class SpikeSummaryFigure:
         ax.plot(self.generator.r_t)
         ax.text(
             0.1, 1, "r(t)",
-            transform=ax.transAxes,   # use axes coords, not data coords
-            ha="left", va="top"      # align text to the top-right
+            transform=ax.transAxes,  
+            ha="left", va="top"    
         )
         ax.set_xlabel("time [ms]")
         ax.set_ylabel("fr [Hz]")
@@ -155,7 +160,7 @@ class SpikeSummaryFigure:
         header = (
             f"{datetime.today().strftime('%Y-%m-%d')}\n"
             f"-----------------------------------------\n"
-            f"p-value:           {self.criteria.compute_pval():.3g}\n"
+            f"p-value:           {self.detector.compute_min_pval():.3g}\n"
             f"% active trials:   {p.proportion_active:.2f}\n"
             f"direction:         {p.direction}\n"
             f"correction:        {p.multiple_correction}\n"

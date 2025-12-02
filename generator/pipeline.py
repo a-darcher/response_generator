@@ -33,7 +33,7 @@ from config import default_seed
 from config_plot import *
 from matlab_io import *
 from generators import PoissonSpikeGenerator
-from stats import ResponseCriteria 
+from remove.stats import ResponseCriteria 
 
 @dataclass(frozen=True)
 class SimulationConfig: 

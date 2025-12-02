@@ -1,4 +1,7 @@
-from base import *
+import sys
+sys.path.append("/home/al/Documents/code/generate_responses/generator")
+
+from responses.response_tests.base import *
 from scipy.stats import wilcoxon
 
 class WilcoxonTest(ResponseTest):
@@ -16,6 +19,6 @@ class WilcoxonTest(ResponseTest):
                 _, p = wilcoxon(stim_bin, baseline, **self.wilcoxon_kwargs)
                 pvals[i] = p
             else:
-                pvals[i] = -1.0   # your special-case convention
+                pvals[i] = -1.0   
 
         return pvals

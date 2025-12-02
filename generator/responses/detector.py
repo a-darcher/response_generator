@@ -1,31 +1,42 @@
-import sys
-sys.path.append("/home/al/Documents/code/generate_responses/generator")
-
 import numpy as np
 
-from generator.responses.config import *
-
+from .config import ResponseData 
+from .response_tests.base import ResponseTest
 
 class ResponseDetector:
     def __init__(self, data: ResponseData, test: ResponseTest):
         self.data = data
-        self.test = test
-        self.pvals_binwise = np.ndarray | None = None
+        self.test = test()
+        self.pvals_binwise: np.ndarray | None = None
         self.direction_of_bin: np.ndarray | None = None
 
-    def _direction_mask(self, stimulus_bin: np.ndarray, baseline_sum: np.ndarray) -> bool:
+    def _direction_mask(self, raw_pvalues: np.ndarray,) -> bool:
             """
-            Return True if this bin matches the expected response direction.
+            Mask pvalues by direction.
             For 'positive', total spikes in the bin >= baseline_sum.
             For 'negative', total spikes in the bin  < baseline_sum.
             """
+            ## TODO -- really think about if comparing the response bin sum to the
+            ## baseline total sum is better than taking and comparing an average ...
+            baseline_sum = self.data.baseline_hist.sum()
+            response_sums_binwise = np.sum(self.data.response_hist, axis=0)
+
             if self.data.cfg.direction == "positive":
-                return stimulus_bin.sum() >= baseline_sum
+                mask = response_sums_binwise >= baseline_sum
+                raw_pvalues[~mask] = 1
+            
             elif self.data.cfg.direction == "negative":
-                return stimulus_bin.sum() < baseline_sum
+                mask = response_sums_binwise <= baseline_sum
+                raw_pvalues[~mask] = 1
+
+            elif self.data.cfg.direction == "none":
+                pass
+            
             else:
                 raise ValueError(f"Direction of response ({self.data.cfg.direction!r}) not recognized.")
         
+            return raw_pvalues
+    
     def _multiple_correction(self, pvals_binwise, *, method: str | None = None,
                                    preserve_order: bool = False) -> np.ndarray:
         """
@@ -73,33 +84,18 @@ class ResponseDetector:
         Isolate the binwise pvalue evalutation. 
         """
         cfg = self.data.cfg
-        baseline_hist = self.data.baseline_hist
         response_hist = self.data.response_hist
 
         n_trials = response_hist.shape[0]
         n_bins = response_hist.shape[1]
 
-        atrials = response_hist.any(1).sum()
-
         pvals_binwise = np.ones(n_bins)
-        direction_of_bin = np.zeros(n_bins, dtype=bool)
 
-        baseline_sum = baseline_hist.sum()
-
+        atrials = response_hist.any(1).sum()
         if atrials > n_trials * cfg.proportion_active:
-            for bin_i in range(n_bins):
-                if (baseline_hist - response_hist[:, bin_i]).any():
+            raw_pvalues = self.test.compute_pvalues(self.data)
 
-                    _, pval = self.test(response_hist, baseline_hist)
-                    
-                elif not (baseline_hist - response_hist[:, bin_i]).any():
-                    pval = -1
-                
-            direction_of_bin[bin_i] = self._direction_mask(response_hist[:, bin_i], baseline_sum)
-            pvals_binwise[bin_i] = pval
-
-        pvals_binwise[~direction_of_bin] = 1
+        pvals_binwise = self._direction_mask(raw_pvalues)
         pvals_binwise = self._multiple_correction(pvals_binwise)
-
         pval_abs = np.abs(pvals_binwise)
         return pval_abs.min()

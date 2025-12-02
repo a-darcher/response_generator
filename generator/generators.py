@@ -69,7 +69,7 @@ class PoissonSpikeGenerator:
         self.p = self.r_t * dt # prob of a spike in each time bin as a function of the time-varying rate
         
         if rng is None: 
-            self.rng = default_seed
+            self.rng = np.random.default_rng(default_seed)
         else:
             self.rng = rng
 

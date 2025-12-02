@@ -3,7 +3,7 @@ sys.path.append("/home/al/Documents/code/generate_responses/generator")
 
 import numpy as np
 
-from generator.responses.config import *
+from .config import ResponseConfig, ResponseData
 
 def bin_baseline(cfg: ResponseConfig) -> np.ndarray:
     """
@@ -87,7 +87,7 @@ def bin_spikes(cfg: ResponseConfig):
         assert hist.sum() == sum([sum(t > 1) for t in cfg.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
 
     if cfg.interleave_response_bins:
-        binned_spikes = _interleave_bins(bins, hist)
+        binned_spikes = _interleave_bins(cfg, bins, hist)
     else:
         binned_spikes = hist
     

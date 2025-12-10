@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: response_stats
+Version: 0.0.1
+Summary: response stats
+Home-page: https://github.com/a-darcher/response_stats
+Author: Alana Darcher
+Author-email: darcher@tuta.io
+Dynamic: author
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: summary

@@ -95,7 +95,7 @@ class ResponseDetector:
         if atrials > n_trials * cfg.proportion_active:
             raw_pvalues = self.test.compute_pvalues(self.data)
 
-        if self.test.kind is TestKind.PARAMETRIC:    
+        if self.test.kind is TestKind.PARAMETRIC:  
             pvals_binwise = self._direction_mask(raw_pvalues)
             pvals_binwise = self._multiple_correction(pvals_binwise)
             pval_abs = np.abs(pvals_binwise)

@@ -1,11 +1,13 @@
-from responses.response_tests.base import * 
+from response_stats.responses.response_tests.base import * 
 from scipy.stats import ttest_ind
 
 from response_stats.config import default_seed
 
 class SurrogateTest(ResponseTest):
+    kind = TestKind.SURROGATE
+    
     def __init__(self, n_perms, rng=None, **ttest_kwargs):
-        kind = TestKind.SURROGATE
+        super().__init__()
 
         self.n_perms = n_perms
         self.ttest_kwargs = ttest_kwargs
@@ -62,7 +64,7 @@ class SurrogateTest(ResponseTest):
         pvals = self._apply_multi_correction()
         return pvals, tstats
     
-    def compute_empirical_tstat(self, data: ResponseData) -> np.float:
+    def compute_empirical_tstat(self, data: ResponseData) -> float:
         baseline_hist = data.baseline_hist
         response_hist = data.response_hist
 
@@ -86,7 +88,7 @@ class SurrogateTest(ResponseTest):
         
         return permuted_tstats
     
-    def compute_pvalues(self, data: ResponseData) -> np.ndarray:
+    def compute_pvalues(self, data: ResponseData) -> float:
         # construct and store the surrogates 
         self.surrogates = self.construct_surrogates(data)
 

@@ -1,9 +1,11 @@
-from responses.response_tests.base import *
+from response_stats.responses.response_tests.base import *
 from scipy.stats import wilcoxon
 
 class WilcoxonTest(ResponseTest):
+    kind = TestKind.PARAMETRIC
+    
     def __init__(self, **wilcoxon_kwargs):
-        kind = TestKind.PARAMETRIC
+        super().__init__()
         self.wilcoxon_kwargs = wilcoxon_kwargs
 
     def compute_pvalues(self, data: ResponseData) -> np.ndarray:

@@ -7,6 +7,7 @@ setup(
     author='Alana Darcher',
     author_email='darcher@tuta.io',
     description='response stats',
-    packages=find_packages(),    
   #  install_requires=['numpy >= 1.11.1', 'matplotlib >= 1.5.1'],
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
 )

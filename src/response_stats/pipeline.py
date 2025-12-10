@@ -29,11 +29,10 @@ from scipy.io import savemat
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from config import default_seed
-from config_plot import *
-from matlab_io import *
-from generators import PoissonSpikeGenerator
-from remove.stats import ResponseCriteria 
+from response_stats.config import default_seed
+from response_stats.config_plot import *
+from response_stats.matlab_io import *
+from response_stats.generators import PoissonSpikeGenerator
 
 @dataclass(frozen=True)
 class SimulationConfig: 

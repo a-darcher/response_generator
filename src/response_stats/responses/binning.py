@@ -3,7 +3,7 @@ sys.path.append("/home/al/Documents/code/generate_responses/generator")
 
 import numpy as np
 
-from .config import ResponseConfig, ResponseData
+from response_stats.responses.config import ResponseConfig, ResponseData
 
 def bin_baseline(cfg: ResponseConfig) -> np.ndarray:
     """

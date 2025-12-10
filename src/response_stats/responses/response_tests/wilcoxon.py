@@ -1,11 +1,9 @@
-import sys
-sys.path.append("/home/al/Documents/code/generate_responses/generator")
-
 from responses.response_tests.base import *
 from scipy.stats import wilcoxon
 
 class WilcoxonTest(ResponseTest):
     def __init__(self, **wilcoxon_kwargs):
+        kind = TestKind.PARAMETRIC
         self.wilcoxon_kwargs = wilcoxon_kwargs
 
     def compute_pvalues(self, data: ResponseData) -> np.ndarray:

@@ -44,7 +44,7 @@ import sys
 import numpy as np
 from scipy.stats import beta
 
-from config import default_seed
+from response_stats.config import default_seed
 
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 

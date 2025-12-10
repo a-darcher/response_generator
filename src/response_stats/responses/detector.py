@@ -1,12 +1,12 @@
 import numpy as np
 
-from .config import ResponseData 
-from .response_tests.base import ResponseTest
+from response_stats.responses.config import ResponseData
+from response_stats.responses.response_tests import ResponseTest, TestKind
 
 class ResponseDetector:
-    def __init__(self, data: ResponseData, test: ResponseTest):
+    def __init__(self, data: ResponseData, test_cls: type[ResponseTest]):
         self.data = data
-        self.test = test()
+        self.test = test_cls()
         self.pvals_binwise: np.ndarray | None = None
         self.direction_of_bin: np.ndarray | None = None
 
@@ -95,7 +95,13 @@ class ResponseDetector:
         if atrials > n_trials * cfg.proportion_active:
             raw_pvalues = self.test.compute_pvalues(self.data)
 
-        pvals_binwise = self._direction_mask(raw_pvalues)
-        pvals_binwise = self._multiple_correction(pvals_binwise)
-        pval_abs = np.abs(pvals_binwise)
-        return pval_abs.min()
+        if self.test.kind is TestKind.PARAMETRIC:    
+            pvals_binwise = self._direction_mask(raw_pvalues)
+            pvals_binwise = self._multiple_correction(pvals_binwise)
+            pval_abs = np.abs(pvals_binwise)
+            pval = pval_abs.min()
+        elif self.test.kind is TestKind.SURROGATE:
+            # output of surrogate is the direct pvalue
+            pval = raw_pvalues
+        
+        return pval

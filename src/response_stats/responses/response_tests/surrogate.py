@@ -17,16 +17,15 @@ class SurrogateTest(ResponseTest):
         else:
             self.rng = rng        
 
-        self.bin_width = 0.05 #ms
-
     def _smooth_bins(self):
         pass
 
     def _get_whole_trial_bins(self, data: ResponseData) -> np.array:
         baseline_T = data.cfg.baseline_T
         stimulus_T = data.cfg.stimulus_T
+        bin_width = data.cfg.bin_width
 
-        return np.arange(0, baseline_T+stimulus_T+self.bin_width, self.bin_width)
+        return np.arange(0, baseline_T+stimulus_T+bin_width, bin_width)
 
     def _bin_whole_trials(self, data: ResponseData,) -> np.ndarray:
         bins = self._get_whole_trial_bins(data)
@@ -82,7 +81,7 @@ class SurrogateTest(ResponseTest):
             assert b_hist.shape[1] + r_hist.shape[1] == len(bins_whole_trial) - 1
 
             b_1_second = np.sum(b_hist, axis=1)
-            r_hist_Hz = r_hist / self.bin_width
+            r_hist_Hz = r_hist / data.cfg.bin_width
 
             b_tstats = self.binwise_test(b_1_second, r_hist_Hz)
             permuted_tstats[n] = np.max(b_tstats)

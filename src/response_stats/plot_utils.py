@@ -161,6 +161,7 @@ class SpikeSummaryFigure:
         header = (
             f"{datetime.today().strftime('%Y-%m-%d')}\n"
             f"-----------------------------------------\n"
+            f"test:              {self.detector.test.__class__.__name__}\n"
             f"p-value:           {self.detector.compute_min_pval():.3g}\n"
             f"% active trials:   {p.proportion_active:.2f}\n"
             f"direction:         {p.direction}\n"

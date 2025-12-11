@@ -4,9 +4,9 @@ from response_stats.responses.config import ResponseData
 from response_stats.responses.response_tests import ResponseTest, TestKind
 
 class ResponseDetector:
-    def __init__(self, data: ResponseData, test_cls: type[ResponseTest]):
+    def __init__(self, data: ResponseData, test_cls: type[ResponseTest], **test_kwargs):
         self.data = data
-        self.test = test_cls()
+        self.test = test_cls(**test_kwargs)
         self.pvals_binwise: np.ndarray | None = None
         self.direction_of_bin: np.ndarray | None = None
 

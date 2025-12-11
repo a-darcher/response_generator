@@ -86,6 +86,7 @@ class SpikeSummaryFigure:
         self._plot_rt()
         self._plot_text_panel()
         self._add_header()
+        plt.show()
         return self.fig, self.axes
     
     def _plot_raster(self):

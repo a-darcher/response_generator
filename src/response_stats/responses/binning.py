@@ -18,16 +18,19 @@ def bin_baseline(cfg: ResponseConfig) -> np.ndarray:
     baseline_hist : np.ndarray, shape (n_trials,)
         Spike counts in baseline per trial.
     """
-    # count spikes during entire baseline period, already in Hz
-    baseline_bins = [cfg.stimulus_onset - cfg.baseline_T, cfg.stimulus_onset] 
+    # count spikes during entire baseline period
+    baseline_bins = [0, cfg.baseline_T] # e.g. [0, 1] for baseline of 1 second.
     baseline_hist = np.array([np.histogram(trial, baseline_bins)[0] 
                               for trial in cfg.trial_activity]).ravel()
     
-    if cfg.debug:
-        assert sum(baseline_hist) == sum([sum(t <= 1) for t in cfg.trial_activity]), "Binned baseline spikes do not match number of baseline spikes."
-
     baseline_duration = baseline_bins[1] - baseline_bins[0]
-    return baseline_hist / baseline_duration
+    baseline = baseline_hist / baseline_duration # Hz
+
+    if cfg.debug:
+        assert sum(baseline_hist) == sum([sum(t <= cfg.baseline_T) for t in cfg.trial_activity]), "Binned baseline spikes do not match number of baseline spikes."
+        print(f"Baseline duration: {baseline_duration} s")
+        print(f"Mean, baseline: {np.mean(baseline)} Hz")
+    return baseline
     
 
 def _interleave_bins(cfg: ResponseConfig, 
@@ -78,21 +81,24 @@ def bin_spikes(cfg: ResponseConfig):
     -------
     np.ndarray : shape (n_trials, n_bins) spike counts (Hz).
     """
-
     # note: onset of bins is baseline time + dt, to allow border-spikes to be counted only in the baseline
     bins = np.arange(cfg.stimulus_onset + cfg.dt, (cfg.stimulus_onset + cfg.stimulus_T)+cfg.bin_width, cfg.bin_width) 
     hist = np.array([np.histogram(trial, bins)[0] for trial in cfg.trial_activity])
     
-    if cfg.debug:
-        assert hist.sum() == sum([sum(t > 1) for t in cfg.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
-
     if cfg.interleave_response_bins:
         binned_spikes = _interleave_bins(cfg, bins, hist)
     else:
         binned_spikes = hist
-    
+
     # convert to rate per second, from rate per (bin width)
-    return binned_spikes / cfg.bin_width 
+    response = binned_spikes / cfg.bin_width 
+
+    if cfg.debug:
+        # just checking the OG hist, not the interleaved, which ~double-counts spikes.
+        assert hist.sum() == sum([sum(t > cfg.stimulus_onset + cfg.dt) for t in cfg.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
+        print(f"Response duration, edge-corrected: {bins[-1]-bins[0]} s")
+        print(f"Mean, response: {np.mean(response)} Hz")
+    return response
 
 def make_response_data(cfg: ResponseConfig) -> ResponseData:
     baseline_hist = bin_baseline(cfg)

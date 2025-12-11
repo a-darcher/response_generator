@@ -13,8 +13,6 @@ $ python3 pipeline.py --config configs/test.yaml
 from __future__ import annotations
 from typing import Optional, Tuple, List, Iterable, Dict, Any
 import yaml
-import sys
-sys.path.append("/home/al/Documents/code/generate_responses/generator")
 
 import shutil
 

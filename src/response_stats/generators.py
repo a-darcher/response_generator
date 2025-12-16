@@ -50,6 +50,7 @@ class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
                  latency, duration, dt, baseline_T, stimulus_T, 
                  induce_refractory_period=False, kappa=4, a=None, b=None, rng=None):
+        
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
         self.latency = latency
@@ -57,29 +58,56 @@ class PoissonSpikeGenerator:
         self.dt = dt
         self.baseline_T = baseline_T
         self.stimulus_T = stimulus_T
-
+    
         self.total_bins = int((baseline_T + stimulus_T) / dt)
 
         self.induce_refractory_period = induce_refractory_period
         self.kappa = kappa
+
         self.a = a
         self.b = b
 
-        self.r_t = self._build_rate_function()
-        self.p = self.r_t * dt # prob of a spike in each time bin as a function of the time-varying rate
+        if induce_refractory_period:
+            self._initialize_burn_in()
+
+        self.r_t = self._build_rate_function(self.total_bins, self.baseline_T)
         
         if rng is None: 
             self.rng = np.random.default_rng(default_seed)
         else:
             self.rng = rng
 
-    def _build_rate_function(self):
+    def _force_renewal_process(self, spike_train):
+        """
+        Induce a refractory period by removing every k-th spike.
+        This will results in a spike train with ISIs following a gamma pdf.
+        """
+        kappa = self.kappa
+        if spike_train.size == 0:
+            return spike_train
+        keep = np.arange(kappa-1, spike_train.size, kappa)
+        return spike_train[keep]
+    
+    def _burn_in_period(self):
+        burn_in_baseline = self.baseline_T + round(self.kappa / self.baseline_fr, 3)
+        if burn_in_baseline < 0.5:
+            burn_in_baseline = 0.5
+        return burn_in_baseline
+    
+    def _initialize_burn_in(self):
+        self.burn_in_period = self._burn_in_period()
+        self.burn_in_baseline_T = self.baseline_T + self.burn_in_period
+        self.burn_in_total_bins = int((self.burn_in_period + self.baseline_T + self.stimulus_T) / self.dt)
+        self.burn_in_r_t = self._build_rate_function(self.burn_in_total_bins, self.burn_in_baseline_T)
+
+    def _build_rate_function(self, total_bins, baseline_T):
+
         # set the baseline fr for all bins
-        r_t = np.full(self.total_bins, float(self.baseline_fr))
+        r_t = np.full(total_bins, float(self.baseline_fr))
 
         # overwrite the response period with the response FR
-        response_onset = int(self.latency / self.dt) + int(self.baseline_T / self.dt)
-        response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(self.baseline_T / self.dt) 
+        response_onset = int(self.latency / self.dt) + int(baseline_T / self.dt)
+        response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(baseline_T / self.dt) 
 
         if self.a and self.b:
             x_ = np.linspace(0, 1, response_offset - response_onset)
@@ -98,18 +126,11 @@ class PoissonSpikeGenerator:
             r_t[response_onset:response_offset] = self.response_fr
 
         return r_t
-    
-    def _force_renewal_process(self, spike_train):
-        """
-        Induce a refractory period by removing every k-th spike.
-        This will results in a spike train with ISIs following a gamma pdf.
-        """
-        kappa = self.kappa
-        if spike_train.size == 0:
-            return spike_train
-        keep = np.arange(kappa-1, spike_train.size, kappa)
-        return spike_train[keep]
 
+    def _remove_burn_in_period(self, spike_times):
+        spike_times = spike_times[spike_times > self.burn_in_period]
+        spike_times = spike_times - self.burn_in_period
+        return spike_times
 
     def generate(self, n_trials: int = 1, squeeze: bool = True):
         """
@@ -129,25 +150,37 @@ class PoissonSpikeGenerator:
             Spike times (seconds). 1D array if squeeze and n_trials==1, else list.
         """
         dt = self.dt
-        p = self.p
+
+        if self.induce_refractory_period:
+            total_bins = self.burn_in_total_bins
+            r_t = self.burn_in_r_t
+        else:
+            total_bins = self.total_bins
+            r_t = self.r_t
+        
+        p = r_t * dt # prob of a spike in each time bin as a function of the time-varying rate
 
         if n_trials == 1:
-            hits = self.rng.random(self.total_bins) <= p
+            hits = self.rng.random(total_bins) <= p
             idx = np.flatnonzero(hits)
             spike_times = idx.astype(float) * dt
             if self.induce_refractory_period:
                 spike_times = self._force_renewal_process(spike_times)
+                spike_times = self._remove_burn_in_period(spike_times)
+
             return spike_times if squeeze else [spike_times]
 
-        hits = self.rng.random(size=(n_trials, self.total_bins)) <= p
+        hits = self.rng.random(size=(n_trials, total_bins)) <= p
         trials: list[np.ndarray] = []
         for i in range(n_trials):
             idx = np.flatnonzero(hits[i])
-            ti = idx.astype(float) * dt
+            spike_times = idx.astype(float) * dt
 
             if self.induce_refractory_period:
-                ti = self._force_renewal_process(ti)
+                spike_times = self._force_renewal_process(spike_times)
+                spike_times = self._remove_burn_in_period(spike_times)
                 
-            trials.append(ti)
+            trials.append(spike_times)
+
         return trials
             

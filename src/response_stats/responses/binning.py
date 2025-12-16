@@ -1,6 +1,3 @@
-import sys
-sys.path.append("/home/al/Documents/code/generate_responses/generator")
-
 import numpy as np
 
 from response_stats.responses.config import ResponseConfig, ResponseData

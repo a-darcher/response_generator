@@ -89,16 +89,25 @@ class PoissonSpikeGenerator:
         return spike_train[keep]
     
     def _burn_in_period(self):
-        burn_in_baseline = self.baseline_T + round(self.kappa / self.baseline_fr, 3)
-        if burn_in_baseline < 0.5:
-            burn_in_baseline = 0.5
-        return burn_in_baseline
+        burn_in = round(self.kappa / self.baseline_fr, 3)
+        print(burn_in)
+        # if burn_in < 0.5:
+        #     burn_in = 0.5
+        return burn_in
     
     def _initialize_burn_in(self):
+        # adjust FR to account for thinning process
+        self.baseline_fr = self.baseline_fr * self.kappa
+        self.response_fr = self.response_fr * self.kappa
+
         self.burn_in_period = self._burn_in_period()
         self.burn_in_baseline_T = self.baseline_T + self.burn_in_period
         self.burn_in_total_bins = int((self.burn_in_period + self.baseline_T + self.stimulus_T) / self.dt)
         self.burn_in_r_t = self._build_rate_function(self.burn_in_total_bins, self.burn_in_baseline_T)
+
+        # return original FR values, mainly for plotting text
+        self.baseline_fr = self.baseline_fr / self.kappa
+        self.response_fr = self.response_fr / self.kappa
 
     def _build_rate_function(self, total_bins, baseline_T):
 

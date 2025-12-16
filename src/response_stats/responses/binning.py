@@ -95,7 +95,7 @@ def bin_spikes(cfg: ResponseConfig):
 
     if cfg.debug:
         # just checking the OG hist, not the interleaved, which ~double-counts spikes.
-        assert hist.sum() == sum([sum(t > cfg.stimulus_onset + cfg.dt) for t in cfg.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
+        assert hist.sum() == sum([sum(t >= cfg.stimulus_onset + cfg.dt) for t in cfg.trial_activity]), "Binned stimulus spikes (full period) do not match number of total stimulus spikes."
         print(f"Response duration, edge-corrected: {bins[-1]-bins[0]} s")
         print(f"Mean, response: {np.mean(response)} Hz")
     return response

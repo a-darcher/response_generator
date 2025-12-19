@@ -1,4 +1,4 @@
-    n_samples: 20
+    n_samples: 1000
     response_type: "baseline"
 
     # trial params
@@ -24,7 +24,7 @@
     dt: 0.001
     induce_refractory_period: True
 
-    gain_low_trial: 20
+    gain_low_trial: 10
     gain_high_trial: 10
 
     # supplementary trials params
@@ -34,5 +34,5 @@
     supplementary_default_factor: 5
 
     seed: 73
-    save_dir:  "/media/al/sansidk/simulated_responses/dev"
+    save_dir:  "/media/al/darch/response_stats/datasets"
     save_language: "python"

@@ -90,7 +90,7 @@ class PoissonSpikeGenerator:
     
     def _burn_in_period(self):
         burn_in = round(self.kappa / self.baseline_fr, 3)
-        print(burn_in)
+        #print(burn_in)
         # if burn_in < 0.5:
         #     burn_in = 0.5
         return burn_in

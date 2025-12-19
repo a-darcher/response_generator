@@ -112,12 +112,13 @@ class ResponseSimulator:
         trial_list = np.asarray(trial_list)
         fr_responses = np.empty_like(trial_list, dtype=float)
 
-        low_trials_mask = trial_list <= 10
-        high_trials_mask = ~low_trials_mask
+        # low_trials_mask = trial_list <= 10
+        # high_trials_mask = ~low_trials_mask
 
-        fr_responses[low_trials_mask] = self.cfg.gain_low_trial - 3 * np.log(self.rng.uniform(size=low_trials_mask.sum()))
-        fr_responses[high_trials_mask] = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=high_trials_mask.sum()))
-        
+        # fr_responses[low_trials_mask] = self.cfg.gain_low_trial - 3 * np.log(self.rng.uniform(size=low_trials_mask.sum()))
+        # fr_responses[high_trials_mask] = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=high_trials_mask.sum()))
+        fr_responses = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=len(trial_list)))
+
         return fr_responses
     
     def _determine_extra_trial_counts(self, n_trials):
@@ -200,6 +201,7 @@ class ResponseSimulator:
         u = rng.uniform(size=cfg.n_samples)
         fr_baseline = cfg.threshold - cfg.scale * np.log(u)
 
+        u = rng.uniform(size=cfg.n_samples)
         n_trials_list = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtype=int)
         if cfg.generate_supplementary_trials:
             n_supplement_trials = np.vectorize(self._determine_extra_trial_counts)(n_trials_list)

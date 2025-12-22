@@ -110,7 +110,6 @@ class PoissonSpikeGenerator:
         self.response_fr = self.response_fr / self.kappa
 
     def _build_rate_function(self, total_bins, baseline_T):
-
         # set the baseline fr for all bins
         r_t = np.full(total_bins, float(self.baseline_fr))
 

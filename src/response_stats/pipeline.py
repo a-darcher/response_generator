@@ -11,7 +11,7 @@ $ python3 pipeline.py --config configs/test.yaml
 """
 
 from __future__ import annotations
-from typing import Optional, Tuple, List, Iterable, Dict, Any
+from typing import List, Dict, Any
 import yaml
 
 import shutil
@@ -38,33 +38,36 @@ class SimulationConfig:
     save_dir: Path
     save_language: str
 
+    # baseline- or response-type
+    response_type: str = "response"
+
     # trial params
-    min_trial_num: int
-    scale_trial: int
+    trial_range: int | tuple | list
+
+    # time params
+    baseline_T: float
+    stimulus_T: float
+    dt: float = 0.001
 
     # baseline firing rate params
     threshold: int
     scale: int
 
-    # beta params
+    # peak response firing rate params
+    gain_response_fr_threshold: int = 20
+    gain_response_fr_scale: int = 3
+
+    # response shape - beta params
     beta_a_range: tuple
     beta_multiplier_range: tuple
 
-    # response params
-    duration_range: None
-    duration: None
+    # response duration params
+    duration_range: float | tuple | list
     
-    latency: float
-    baseline_T: float
-    stimulus_T: float
-
-    response_type: str = "response"
-
-    dt: float = 0.001
+    # delay in response onset param
+    latency_range: float | tuple | list
+    
     induce_refractory_period: bool = True
-
-    gain_low_trial: int = 20
-    gain_high_trial: int = 10
 
     # supplementary trials params
     generate_supplementary_trials: bool = True
@@ -100,34 +103,36 @@ class ResponseSimulator:
         self.save_dir = cfg.save_dir / self.time_str
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
-    def _determine_response_firing_gain(self, trial_list):
-        """Set the increase in firing rate for the response period conditioned on the number of trials.
-
-        Args:
-            trial_list (list): list containing the number of trials for all simulations
-
-        Returns:
-            np.array: 1 x n_samples, peak firing rate during the response period for a given sample
-        """
-        trial_list = np.asarray(trial_list)
-        fr_responses = np.empty_like(trial_list, dtype=float)
-
-        # low_trials_mask = trial_list <= 10
-        # high_trials_mask = ~low_trials_mask
-
-        # fr_responses[low_trials_mask] = self.cfg.gain_low_trial - 3 * np.log(self.rng.uniform(size=low_trials_mask.sum()))
-        # fr_responses[high_trials_mask] = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=high_trials_mask.sum()))
-        fr_responses = self.cfg.gain_high_trial - 3 * np.log(self.rng.uniform(size=len(trial_list)))
-
-        return fr_responses
+    def _handle_baseline_firing_rates(self):
+        u = self.rng.uniform(size=self.cfg.n_samples)
+        fr_baseline = self.cfg.threshold - self.cfg.scale * np.log(u)
+        return fr_baseline
     
-    def _determine_extra_trial_counts(self, n_trials):
+    def _handle_trial_counts(self):
+        if np.isscalar(self.cfg.trial_range):
+            trial_counts = np.full(self.cfg.n_samples, self.cfg.trial_range, dtype=np.int64)
+        elif isinstance(self.cfg.trial_range, (list, tuple)):
+            trial_counts = self.rng.integers(
+                self.cfg.trial_range[0], 
+                self.cfg.trial_range[1], 
+                size=self.cfg.n_samples, 
+                endpoint=True)
+        else:
+            raise TypeError("trial_range must be a scalar or a tuple.")
+        return trial_counts
+    
+    def _handle_extra_trial_counts(self, n_trials):
         if n_trials < self.cfg.supplementary_threshold:
             n_supplement_trials = self.cfg.supplementary_default_count
         else:
             n_supplement_trials = n_trials * self.cfg.supplementary_default_factor
         return n_supplement_trials
 
+    def _handle_response_firing_gain(self, trial_list):
+        trial_list = np.asarray(trial_list)
+        fr_responses = self.cfg.gain_response_fr_threshold - self.cfg.gain_response_fr_scale * np.log(self.rng.uniform(size=len(trial_list)))
+        return fr_responses
+    
     def _handle_response_type(self, n_trials_list, fr_baseline):
         """Set generation parameters according to response type. 
         Types: 
@@ -149,7 +154,7 @@ class ResponseSimulator:
         cfg = self.cfg
 
         if cfg.response_type == "response":
-            ratios = self._determine_response_firing_gain(n_trials_list)
+            ratios = self._handle_response_firing_gain(n_trials_list)
             fr_response = fr_baseline * ratios
 
             beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)
@@ -175,19 +180,22 @@ class ResponseSimulator:
         Returns:
             np.array: duration of the response for each trial
         """
-        cfg = self.cfg
-        rng = self.rng
-
-        assert bool(cfg.duration) != bool(cfg.duration_range), "Duration must be specified by `duration` or `duration_range`, but not both."
-
-        if cfg.duration:
-            durations = np.full(cfg.n_samples, cfg.duration)
-        elif cfg.duration_range:
-            durations = rng.uniform(cfg.duration_range[0], cfg.duration_range[1], size=cfg.n_samples)
+        if np.isscalar(self.cfg.duration_range):
+            durations = np.full(self.cfg.n_samples, self.cfg.duration_range)
+        elif isinstance(self.cfg.duration_range, (list, tuple)):
+            durations = self.rng.uniform(self.cfg.duration_range[0], self.cfg.duration_range[1], size=self.cfg.n_samples)
         else:
-            raise ValueError
-        
+            raise TypeError("duration_range must be a scalar or a tuple.")
         return durations
+    
+    def _handle_latencies(self,) -> np.array:
+        if np.isscalar(self.cfg.latency_range):
+            latencies = np.full(self.cfg.n_samples, self.cfg.latency_range)
+        elif isinstance(self.cfg.latency_range, (list, tuple)):
+            latencies = self.rng.uniform(self.cfg.latency_range[0], self.cfg.latency_range[1], size=self.cfg.n_samples)
+        else:
+            raise TypeError("latency_range must be a scalar or a tuple.")
+        return latencies
 
     def run(self) -> pd.DataFrame:
         """Runner for simulating the specified batch of units.
@@ -198,27 +206,26 @@ class ResponseSimulator:
         cfg = self.cfg
         rng = self.rng
 
-        u = rng.uniform(size=cfg.n_samples)
-        fr_baseline = cfg.threshold - cfg.scale * np.log(u)
+        fr_baseline = self._handle_baseline_firing_rates()
+        trial_counts = self._handle_trial_counts()
 
-        u = rng.uniform(size=cfg.n_samples)
-        n_trials_list = np.array(cfg.min_trial_num - cfg.scale_trial * np.log(u), dtype=int)
         if cfg.generate_supplementary_trials:
-            n_supplement_trials = np.vectorize(self._determine_extra_trial_counts)(n_trials_list)
+            supplement_trials_counts = np.vectorize(self._handle_extra_trial_counts)(trial_counts)
         
-        fr_response, beta_a_s, beta_b_s = self._handle_response_type(n_trials_list, fr_baseline)
+        fr_response, beta_a_s, beta_b_s = self._handle_response_type(trial_counts, fr_baseline)
         durations = self._handle_durations()
+        latencies = self._handle_latencies()
 
         df = pd.DataFrame({
-            "n_trials": n_trials_list.astype(dtype=np.int8),
+            "n_trials": trial_counts.astype(dtype=np.int8),
             "response": np.full(cfg.n_samples, cfg.response_type, dtype=str),
             "fr_baseline": fr_baseline.astype(float),
             "fr_response": fr_response.astype(float),
-            "latency": np.full(cfg.n_samples, cfg.latency, dtype=float),
-            "duration": durations,
+            "latency": latencies.astype(float),
+            "duration": durations.astype(float),
             "time_baseline": np.full(cfg.n_samples, cfg.baseline_T, dtype=float),
             "time_stimulus": np.full(cfg.n_samples, cfg.stimulus_T, dtype=float),
-            "refractory_period_induced": np.ones(cfg.n_samples, dtype=np.int8),
+            "refractory_period_induced": np.full(cfg.n_samples, cfg.induce_refractory_period, dtype=np.int8),
             "beta_a": beta_a_s.astype(float),
             "beta_b": beta_b_s.astype(float),
         })
@@ -228,20 +235,21 @@ class ResponseSimulator:
             supplement_trials = [None] * cfg.n_samples
 
         for i, fr in enumerate(tqdm(fr_baseline)):
-            n_trials = n_trials_list[i]
-            n_supplement_trials = self._determine_extra_trial_counts(n_trials)
+            n_trials = trial_counts[i]
+            n_supplement_trials = supplement_trials_counts[i]
 
             baseline_fr  = fr
             response_fr  = fr_response[i]
 
             duration = durations[i]
+            latency = latencies[i]
             a = beta_a_s[i]
             b = beta_b_s[i]
 
             generator = PoissonSpikeGenerator(
             baseline_fr=baseline_fr,
             response_fr=response_fr,
-            latency=cfg.latency,
+            latency=latency,
             duration=duration,
             baseline_T=cfg.baseline_T,
             stimulus_T=cfg.stimulus_T,
@@ -384,7 +392,7 @@ class ResponseSimulator:
                 f"beta({round(a, 3)}, {round(b, 3)})"
             )
         else:
-                        s = (
+            s = (
                 f"{n_trials} trials\n\n"
                 f"params [time in sec]:\n"
                 f"baseline FR: {round(baseline_fr, 3)} Hz\n"

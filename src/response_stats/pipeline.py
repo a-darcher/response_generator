@@ -39,7 +39,7 @@ class SimulationConfig:
     save_language: str
 
     # baseline- or response-type
-    response_type: str = "response"
+    response_type: str
 
     # trial params
     trial_range: int | tuple | list
@@ -47,19 +47,19 @@ class SimulationConfig:
     # time params
     baseline_T: float
     stimulus_T: float
-    dt: float = 0.001
+    dt: float
 
     # baseline firing rate params
     threshold: int
     scale: int
 
     # peak response firing rate params
-    gain_response_fr_threshold: int = 20
-    gain_response_fr_scale: int = 3
+    gain_response_fr_threshold: int
+    gain_response_fr_scale: int
 
     # response shape - beta params
-    beta_a_range: tuple
-    beta_multiplier_range: tuple
+    beta_a_range: tuple | list
+    beta_multiplier_range: tuple | list
 
     # response duration params
     duration_range: float | tuple | list
@@ -67,13 +67,13 @@ class SimulationConfig:
     # delay in response onset param
     latency_range: float | tuple | list
     
-    induce_refractory_period: bool = True
+    induce_refractory_period: bool
 
     # supplementary trials params
-    generate_supplementary_trials: bool = True
-    supplementary_threshold: int = 50
-    supplementary_default_count: int = 200
-    supplementary_default_factor: int = 5
+    generate_supplementary_trials: bool
+    supplementary_threshold: int
+    supplementary_default_count: int
+    supplementary_default_factor: int
 
     seed: int = default_seed
     
@@ -257,7 +257,7 @@ class ResponseSimulator:
             induce_refractory_period=cfg.induce_refractory_period,
             rng=rng,
             a=a,
-            b=a, 
+            b=b, 
             )
 
             # generate trials
@@ -272,8 +272,8 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 10:
-                self._plot_example(i, n_trials, baseline_fr, response_fr, duration, a, b, generator, trial_activity)
+            if i < 20:
+                self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters
         if cfg.generate_supplementary_trials:
@@ -305,6 +305,7 @@ class ResponseSimulator:
         baseline_fr: float,
         response_fr: float,
         duration: float,
+        latency: float,
         a: float | None,
         b: float | None,
         generator: PoissonSpikeGenerator,
@@ -383,7 +384,7 @@ class ResponseSimulator:
                 f"params [time in sec]:\n"
                 f"baseline FR: {round(baseline_fr, 3)} Hz\n"
                 f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {cfg.latency}\n"
+                f"latency: {latency}\n"
                 f"duration: {round(duration, 3)} s\n"
                 f"baseline_T: {cfg.baseline_T} s\n"
                 f"stimulus_T: {cfg.stimulus_T} s\n"
@@ -397,7 +398,7 @@ class ResponseSimulator:
                 f"params [time in sec]:\n"
                 f"baseline FR: {round(baseline_fr, 3)} Hz\n"
                 f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {cfg.latency}\n"
+                f"latency: {latency}\n"
                 f"duration: {round(duration, 3)} s\n"
                 f"baseline_T: {cfg.baseline_T} s\n"
                 f"stimulus_T: {cfg.stimulus_T} s\n"

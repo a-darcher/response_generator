@@ -133,6 +133,8 @@ class PoissonSpikeGenerator:
         else:       
             r_t[response_onset:response_offset] = self.response_fr
 
+        ## placeholder: add bursts. 
+
         return r_t
 
     def _remove_burn_in_period(self, spike_times):

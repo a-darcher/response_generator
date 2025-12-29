@@ -99,8 +99,8 @@ class ResponseSimulator:
         self.rng = np.random.default_rng(seed=cfg.seed)
 
         self.time_str = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
-
-        self.save_dir = cfg.save_dir / self.time_str
+        self.dir_name = f"{cfg.response_type}_trials{cfg.trial_range}"
+        self.save_dir = cfg.save_dir / self.dir_name
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
     def _handle_baseline_firing_rates(self):
@@ -384,7 +384,7 @@ class ResponseSimulator:
                 f"params [time in sec]:\n"
                 f"baseline FR: {round(baseline_fr, 3)} Hz\n"
                 f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {latency}\n"
+                f"latency: {round(latency, 3)}\n"
                 f"duration: {round(duration, 3)} s\n"
                 f"baseline_T: {cfg.baseline_T} s\n"
                 f"stimulus_T: {cfg.stimulus_T} s\n"
@@ -398,7 +398,7 @@ class ResponseSimulator:
                 f"params [time in sec]:\n"
                 f"baseline FR: {round(baseline_fr, 3)} Hz\n"
                 f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {latency}\n"
+                f"latency: {round(latency, 3)}\n"
                 f"duration: {round(duration, 3)} s\n"
                 f"baseline_T: {cfg.baseline_T} s\n"
                 f"stimulus_T: {cfg.stimulus_T} s\n"

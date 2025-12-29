@@ -1,8 +1,8 @@
-    n_samples: 100
-    response_type: "response"
+    n_samples: 15000
+    response_type: "baseline"
 
     # trial params
-    trial_range: [8,100] # 10 
+    trial_range: [9,10] # 10 
 
     # baseline firing rate params
     threshold: 0.01
@@ -32,5 +32,5 @@
     supplementary_default_factor: 5
 
     seed: 73
-    save_dir: "/media/al/darch/response_stats/datasets" #  "/media/al/bitesized/datasets"
+    save_dir: "/media/al/darch/response_stats/datasets/main" #  "/media/al/bitesized/datasets"
     save_language: "python"

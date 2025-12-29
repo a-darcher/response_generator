@@ -1,0 +1,36 @@
+    n_samples: 15000
+    response_type: "response"
+
+    # trial params
+    trial_range: [13,15] # 10 
+
+    # baseline firing rate params
+    threshold: 0.01
+    scale: 1
+
+    # beta params
+    beta_a_range: [1, 1.5]
+    beta_multiplier_range: [1.5, 2]
+
+    # response params
+    duration_range: [0.25, 0.7] # 0.4
+    
+    latency_range: [0.250, 0.410] # 0.35
+    
+    baseline_T: 2
+    stimulus_T: 2
+    dt: 0.001
+    induce_refractory_period: True
+
+    gain_response_fr_threshold: 4
+    gain_response_fr_scale: 4
+
+    # supplementary trials params
+    generate_supplementary_trials: True
+    supplementary_threshold: 50
+    supplementary_default_count: 200
+    supplementary_default_factor: 5
+
+    seed: 73
+    save_dir: "/media/al/darch/response_stats/datasets/main" #  "/media/al/bitesized/datasets"
+    save_language: "python"

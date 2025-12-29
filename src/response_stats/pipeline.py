@@ -155,7 +155,7 @@ class ResponseSimulator:
 
         if cfg.response_type == "response":
             ratios = self._handle_response_firing_gain(n_trials_list)
-            fr_response = fr_baseline * ratios
+            fr_response = (fr_baseline + 1) * ratios # fr_baseline altered to be > 1 for a clear response.
 
             beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)
             beta_multiplier_s = self.rng.uniform(cfg.beta_multiplier_range[0], cfg.beta_multiplier_range[1], size=cfg.n_samples)
@@ -272,7 +272,7 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 20:
+            if i < 100:
                 self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters

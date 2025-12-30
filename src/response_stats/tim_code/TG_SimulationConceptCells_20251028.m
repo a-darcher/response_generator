@@ -39,7 +39,6 @@ params.timeStimOn               = 0; % time of stimulus onset in seconds
 params.timeStimOff              = 1; % time of stimulus offset in seconds
 params.timeStimWindowOfInterest = [0.1, 0.9]; % time window of interest during stimulus presentation in seconds
 params.timeBinsMinMax           = params.minTime:params.timeRes:params.maxTime;
-params.timeBinsMinMax           = params.minTime:params.timeRes:params.maxTime;
 params.timeCentersMinMax        = movmean(params.timeBinsMinMax, 2, 2, 'endpoints', 'discard');
 params.timeCentersOfInterest    = params.timeCentersMinMax >= params.timeBaselineOn & params.timeCentersMinMax <= params.timeStimOff;
 params.timeCenters              = params.timeCentersMinMax(params.timeCentersOfInterest);

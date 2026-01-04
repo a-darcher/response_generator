@@ -17,15 +17,17 @@ addpath(genpath('C:\Sciebo\GitCode\NeuroGuth\ConceptMuseum\ConceptCells_20250310
 addpath(genpath('C:\Sciebo\GitCode\NeuroGuth\ConceptMuseum\DoScreeningCombinato_20240822'));
 addpath(genpath('D:\External\Functions'));
 
-% paths
+% pathsr
 paths                           = struct();
-paths.data                      = 'E:\ConceptMuseum\ConceptCells_20250310\Simulations_20251022\100k';
-paths.save                      = 'E:\ConceptMuseum\ConceptCells_20250310\Simulations_20251022\100k';
+%paths.data                      = 'E:\ConceptMuseum\ConceptCells_20250310\Simulations_20251022\100k';
+%paths.save                      = 'E:\ConceptMuseum\ConceptCells_20250310\Simulations_20251022\100k';
+paths.data                      = '/media/al/darch/response_stats/datasets/main/';
+paths.save                      = paths.data;
 
 % parameters
 params                          = struct();
-params.dataName                 = '2025-10-24_100000_simulated_responses.mat';
-params.numSubsample             = 40000;
+params.dataName                 = 'dataset.mat';
+params.numSubsample             = 15000;
 params.binwiseTestVersion       = 'original'; % 'original' or 'modified'
 params.createFigure             = false;
 params.timeRes                  = 0.05; % bin size for statistical test in seconds
@@ -114,6 +116,7 @@ parfor iUnit = 1:size(allStimSpikeTimes, 2)
 
         % concatenate data
         spikeTimes                      = cat(1, stimulusSpikeTimes, baselineSpikeTimes);
+     %   spikeTimes                      = stimulusSpikeTimes;
 
         % cue index
         isCue                           = cat(1, true(size(stimulusSpikeTimes)), false(size(baselineSpikeTimes)));

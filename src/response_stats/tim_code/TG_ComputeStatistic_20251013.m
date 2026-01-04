@@ -1,4 +1,4 @@
-function [t, isMax] = TG_ComputeStatistic_20251013(FR, isCue, params)
+function [t, isMax] = TG_ComputeStatistic_20251013(smFR, isCue, params)
 %
 % TG_ComputeStatistic computes the maximum t-value
 % across stimulus bins and returns its global bin index.
@@ -16,8 +16,8 @@ function [t, isMax] = TG_ComputeStatistic_20251013(FR, isCue, params)
 % Tim Guth, 2025
 
 % stimulus and baseline firing rates
-stimulusFR              = FR(isCue, params.isStimBin);
-baselineFR              = FR(:, params.isBaselineBin);
+stimulusFR              = smFR(isCue, params.isStimBin);
+baselineFR              = smFR(:, params.isBaselineBin);
 meanBaselineFR          = mean(baselineFR, 2);
 
 % candidate cluster
@@ -26,7 +26,7 @@ testStat                = stats.tstat;
 
 % find maximum t-value and its location
 [t, maxIdx]             = max(testStat);
-isMax                   = false(1, size(FR, 2));
+isMax                   = false(1, size(smFR, 2));
 isStimMax               = isMax(params.isStimBin);
 isStimMax(maxIdx)       = true;
 isMax(params.isStimBin) = isStimMax;

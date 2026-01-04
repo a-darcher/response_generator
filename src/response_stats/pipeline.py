@@ -216,9 +216,11 @@ class ResponseSimulator:
         durations = self._handle_durations()
         latencies = self._handle_latencies()
 
+        response_bool = 1 if cfg.response_type == "response" else 0
+
         df = pd.DataFrame({
             "n_trials": trial_counts.astype(dtype=np.int8),
-            "response": np.full(cfg.n_samples, cfg.response_type, dtype=str),
+            "response": np.full(cfg.n_samples, response_bool, dtype=str),
             "fr_baseline": fr_baseline.astype(float),
             "fr_response": fr_response.astype(float),
             "latency": latencies.astype(float),

@@ -32,5 +32,5 @@
     supplementary_default_factor: 5
 
     seed: 73
-    save_dir: "/media/al/darch/response_stats/datasets" #  "/media/al/bitesized/datasets"
+    save_dir: "/home/usr/Documents/dir"
     save_language: "python"

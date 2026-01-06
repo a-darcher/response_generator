@@ -448,6 +448,11 @@ def _parse_save_by_language(cfg, save_path, df, fname):
     elif cfg.save_language == "matlab":
         mat_dict = {col: df[col].to_numpy() for col in df.columns}
         savemat(save_path / f"{fname}.mat", {"data": mat_dict})
+    elif cfg.save_language == "both":
+        df.to_parquet(save_path / f"{fname}.parquet")
+        
+        mat_dict = {col: df[col].to_numpy() for col in df.columns}
+        savemat(save_path / f"{fname}.mat", {"data": mat_dict})
 
 def _copy_config_file(config_path, save_path):
     shutil.copy(config_path, f"{save_path}/run_config.yaml")

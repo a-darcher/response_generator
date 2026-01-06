@@ -1,4 +1,4 @@
-    n_samples: 15000
+    n_samples: 1000
     response_type: "response"
 
     # trial params
@@ -32,5 +32,5 @@
     supplementary_default_factor: 5
 
     seed: 73
-    save_dir: "/media/al/darch/response_stats/datasets/main" #  "/media/al/bitesized/datasets"
-    save_language: "python"
+    save_dir: "/media/al/darch/response_stats/datasets/main_1k" #  "/media/al/bitesized/datasets"
+    save_language: "both"

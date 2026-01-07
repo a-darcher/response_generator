@@ -1,20 +1,19 @@
-    n_samples: 500
-    response_type: "baseline"
+    n_samples: 100
+    response_type: "response"
 
     # trial params
-    trial_range: [76,100] # 10 
+    trial_range: [8,150] # 10 
 
     # baseline firing rate params
-    baseline_threshold: False
-    baseline_scale: False
-    baseline_range: [0.1, 15]
-    
+    threshold: 1
+    scale: 3
+
     # beta params
     beta_a_range: [1, 1.5]
     beta_multiplier_range: [1.5, 2]
 
     # response params
-    duration_range: [0.25, 0.7] # 0.4
+    duration_range: [0.5, 0.7] # 0.4
     
     latency_range: [0.250, 0.410] # 0.35
     
@@ -23,8 +22,8 @@
     dt: 0.001
     induce_refractory_period: True
 
-    gain_response_fr_threshold: 5
-    gain_response_fr_scale: 1
+    gain_response_fr_threshold: 0
+    gain_response_fr_scale: 0
 
     # supplementary trials params
     generate_supplementary_trials: True
@@ -33,5 +32,5 @@
     supplementary_default_factor: 5
 
     seed: 73
-    save_dir: "/media/al/darch/response_stats/datasets/main_1k_uniformBaseline_gainFRscale1_gainFRthreshold5" #  "/media/al/bitesized/datasets"
-    save_language: "both"
+    save_dir: "/media/al/darch/response_stats/datasets/negative" #  "/media/al/bitesized/datasets"
+    save_language: "python"

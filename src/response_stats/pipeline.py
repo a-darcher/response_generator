@@ -49,9 +49,7 @@ class SimulationConfig:
     stimulus_T: float
     dt: float
 
-    # baseline firing rate params
-    threshold: int
-    scale: int
+
 
     # peak response firing rate params
     gain_response_fr_threshold: int
@@ -76,6 +74,12 @@ class SimulationConfig:
     supplementary_default_factor: int
 
     seed: int = default_seed
+
+    # baseline firing rate params
+    baseline_threshold: int | bool = False
+    baseline_scale: int | bool = False
+    baseline_range: tuple | list | bool = False
+
     
     @staticmethod
     def from_yaml(path: Path) -> "SimulationConfig":
@@ -104,8 +108,15 @@ class ResponseSimulator:
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
     def _handle_baseline_firing_rates(self):
-        u = self.rng.uniform(size=self.cfg.n_samples)
-        fr_baseline = self.cfg.threshold - self.cfg.scale * np.log(u)
+        if self.cfg.baseline_threshold and self.cfg.baseline_scale:
+            u = self.rng.uniform(size=self.cfg.n_samples)
+            fr_baseline = self.cfg.baseline_threshold - self.cfg.baseline_scale * np.log(u)
+
+        elif isinstance(self.cfg.baseline_range, (list, tuple)):
+            fr_baseline = self.rng.uniform(low=self.cfg.baseline_range[0], 
+                                           high=self.cfg.baseline_range[1],
+                                           size=self.cfg.n_samples)
+        
         return fr_baseline
     
     def _handle_trial_counts(self):
@@ -211,6 +222,8 @@ class ResponseSimulator:
 
         if cfg.generate_supplementary_trials:
             supplement_trials_counts = np.vectorize(self._handle_extra_trial_counts)(trial_counts)
+        else:
+            supplement_trials_counts = 0
         
         fr_response, beta_a_s, beta_b_s = self._handle_response_type(trial_counts, fr_baseline)
         durations = self._handle_durations()
@@ -219,7 +232,8 @@ class ResponseSimulator:
         response_bool = 1 if cfg.response_type == "response" else 0
 
         df = pd.DataFrame({
-            "n_trials": trial_counts.astype(dtype=np.int8),
+            "n_trials": trial_counts.astype(dtype=np.int32),
+            "n_supp_trials": supplement_trials_counts.astype(dtype=np.int32),
             "response": np.full(cfg.n_samples, response_bool, dtype=str),
             "fr_baseline": fr_baseline.astype(float),
             "fr_response": fr_response.astype(float),
@@ -274,7 +288,7 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 100:
+            if i < 10:
                 self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters
@@ -442,16 +456,80 @@ def _parse_cli_args(argv= None) -> Dict[str, Any]:
     args = p.parse_args(list(argv) if argv is not None else None)
     return {"config_path": args.config}
 
+def _is_sequence(x):
+    return isinstance(x, (list, tuple, np.ndarray))
+
+def _as_numeric_vector(x):
+    """Convert x to a 1D float vector (numpy array)."""
+    v = np.asarray(x, dtype=float).ravel()
+    return v
+
+def _as_cell_of_scalars(x):
+    """Convert 1D numeric x -> numpy object array of python floats (cell-of-scalars)."""
+    v = np.asarray(x, dtype=float).ravel()
+    return np.array([float(z) for z in v], dtype=object)
+
+def _as_cell_of_vectors(seq):
+    """
+    Convert seq (sequence of segments) -> numpy object array,
+    each element is a 1D float vector (cell-of-vectors).
+    """
+    out = np.empty(len(seq), dtype=object)
+    for i, seg in enumerate(seq):
+        out[i] = _as_numeric_vector(seg)
+    return out
+
+def _force_matlab_cell_structure(df, col="rasters"):
+    src = df[col].to_numpy(dtype=object)
+
+    # Outer cell: one entry per trial
+    out = np.empty(src.shape[0], dtype=object)
+
+    for i, r in enumerate(src):
+        if r is None:
+            out[i] = np.empty(0, dtype=object)
+            continue
+
+        # If r is a numpy array with dtype != object and ndim == 1: it's flat numeric
+        if isinstance(r, np.ndarray) and r.dtype != object:
+            out[i] = _as_cell_of_scalars(r)
+            continue
+
+        # If r is a list/tuple or object-array, decide whether it’s nested:
+        # nested means: at least one element is itself a sequence/array (and not a string)
+        if _is_sequence(r):
+            # Make it easy to iterate elements (works for list/tuple/object-array)
+            elems = list(r)
+
+            nested = any(_is_sequence(e) and not isinstance(e, (str, bytes)) for e in elems)
+
+            if nested:
+                # Preserve grouping: cell of vectors
+                out[i] = _as_cell_of_vectors(elems)
+            else:
+                # Flat: cell of scalars
+                out[i] = np.array([float(e) for e in elems], dtype=object)
+            continue
+
+        # Fallback: scalar
+        out[i] = np.array([float(r)], dtype=object)
+
+    mat_dict = {c: df[c].to_numpy() for c in df.columns}
+    mat_dict[col] = out
+    return mat_dict
+
 def _parse_save_by_language(cfg, save_path, df, fname):
     if cfg.save_language == "python":
         df.to_parquet(save_path / f"{fname}.parquet")
     elif cfg.save_language == "matlab":
-        mat_dict = {col: df[col].to_numpy() for col in df.columns}
+        mat_dict = _force_matlab_cell_structure(df)
         savemat(save_path / f"{fname}.mat", {"data": mat_dict})
     elif cfg.save_language == "both":
         df.to_parquet(save_path / f"{fname}.parquet")
-        
-        mat_dict = {col: df[col].to_numpy() for col in df.columns}
+
+        # force cell structure for single-spike trials
+        mat_dict = _force_matlab_cell_structure(df)
+
         savemat(save_path / f"{fname}.mat", {"data": mat_dict})
 
 def _copy_config_file(config_path, save_path):

@@ -49,8 +49,6 @@ class SimulationConfig:
     stimulus_T: float
     dt: float
 
-
-
     # peak response firing rate params
     gain_response_fr_threshold: int
     gain_response_fr_scale: int
@@ -68,10 +66,8 @@ class SimulationConfig:
     induce_refractory_period: bool
 
     # supplementary trials params
-    generate_supplementary_trials: bool
-    supplementary_threshold: int
-    supplementary_default_count: int
-    supplementary_default_factor: int
+    generate_supplementary_trials: bool = False
+    supplementary_default_count: int | bool = False
 
     seed: int = default_seed
 
@@ -132,11 +128,11 @@ class ResponseSimulator:
             raise TypeError("trial_range must be a scalar or a tuple.")
         return trial_counts
     
-    def _handle_extra_trial_counts(self, n_trials):
-        if n_trials < self.cfg.supplementary_threshold:
+    def _handle_extra_trial_counts(self,):
+        if self.cfg.generate_supplementary_trials:
             n_supplement_trials = self.cfg.supplementary_default_count
         else:
-            n_supplement_trials = n_trials * self.cfg.supplementary_default_factor
+            n_supplement_trials = 0
         return n_supplement_trials
 
     def _handle_response_firing_gain(self, trial_list):
@@ -220,10 +216,7 @@ class ResponseSimulator:
         fr_baseline = self._handle_baseline_firing_rates()
         trial_counts = self._handle_trial_counts()
 
-        if cfg.generate_supplementary_trials:
-            supplement_trials_counts = np.vectorize(self._handle_extra_trial_counts)(trial_counts)
-        else:
-            supplement_trials_counts = 0
+        supplement_trials_counts = np.vectorize(self._handle_extra_trial_counts)()
         
         fr_response, beta_a_s, beta_b_s = self._handle_response_type(trial_counts, fr_baseline)
         durations = self._handle_durations()

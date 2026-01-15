@@ -28,9 +28,9 @@
 
     # supplementary trials params
     generate_supplementary_trials: True
-    supplementary_threshold: 50
+    
     supplementary_default_count: 200
-    supplementary_default_factor: 5
+    
 
     seed: 73
     save_dir: "/media/al/darch/response_stats/datasets/main_1k_uniformBaseline_gainFRscale1_gainFRthreshold5" #  "/media/al/bitesized/datasets"

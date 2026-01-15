@@ -28,7 +28,7 @@
 
     # supplementary trials params
     generate_supplementary_trials: True
-    supplementary_threshold: 50
+    
     supplementary_default_count: 200
     supplementary_default_factor: 5
 

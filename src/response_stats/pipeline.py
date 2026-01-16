@@ -33,7 +33,7 @@ from response_stats.matlab_io import *
 from response_stats.generators import PoissonSpikeGenerator
 
 Sampler = Literal["uniform", "exponential"]
-Method = Literal("linear_function", "gain_function", "threshold")
+ResponseMethod = Literal["linear_function", "gain_function", "threshold"]
 
 @dataclass(frozen=True)
 class SimulationConfig: 
@@ -77,12 +77,13 @@ class SimulationConfig:
 
     # peak response firing rate params
     response_fr_sampler: Sampler = "uniform"
-    response_fr_method: Method = "linear_function"
+    response_fr_method: ResponseMethod = "linear_function"
+
     response_fr_scale: float = 2
     response_fr_max: float = 100 
 
     # gain response function: 
-    gain_response_threshold: float | bool = False
+    gain_response_fixed: float | bool = False
 
     gain_response_y: float | bool = False
     gain_response_high: float | bool = False
@@ -91,8 +92,6 @@ class SimulationConfig:
     # linear response function
     linear_response_slope: float | bool = False
     linear_response_offset: float | bool = False
-
-
 
     @staticmethod
     def from_yaml(path: Path) -> "SimulationConfig":
@@ -145,15 +144,15 @@ class ResponseSimulator:
             raise TypeError("trial_range must be a scalar or a tuple.")
         return trial_counts
     
-    def _handle_extra_trial_counts(self,):
+    def _handle_extra_trial_counts(self, n_trials):
         if self.cfg.generate_supplementary_trials:
             n_supplement_trials = self.cfg.supplementary_default_count
         else:
             n_supplement_trials = 0
-        return n_supplement_trials
+        return np.full(len(n_trials), n_supplement_trials)
 
-    def _gain_function(self, x, gain_y, gain_high, gain_e):
-        return (1/gain_y)**x * gain_high + gain_e
+    def _gain_function(self, x,):
+        return (1/self.cfg.gain_response_y)**x * self.cfg.gain_response_high + self.cfg.gain_response_e
     
     def _linear_function(self, x):
         return x * self.cfg.linear_response_slope + self.cfg.linear_response_offset
@@ -161,11 +160,13 @@ class ResponseSimulator:
     def _handle_response_minimum(self, fr_baseline):
         
         if self.cfg.response_fr_method == "threshold":
-            minimum_fr = self.cfg.gain_response_threshold
+            gain = self.cfg.gain_response_fixed
+            minimum_fr = (fr_baseline + 1) * gain
         elif self.cfg.response_fr_method == "linear_function":
             minimum_fr = np.vectorize(self._linear_function)(fr_baseline)
         elif self.cfg.response_fr_method == "gain_function":
-            minimum_fr = np.vectorize(self._gain_function)(fr_baseline)
+            gain = np.vectorize(self._gain_function)(fr_baseline)
+            minimum_fr = (fr_baseline + 1) * gain # fr_baseline altered to be > 1 for a clear response.
         else:
             TypeError
 
@@ -208,8 +209,7 @@ class ResponseSimulator:
         cfg = self.cfg
 
         if cfg.response_type == "response":
-            ratios = self._handle_response_firing_rates(n_trials_list, fr_baseline)
-            fr_response = (fr_baseline + 1) * ratios # fr_baseline altered to be > 1 for a clear response.
+            fr_response = self._handle_response_firing_rates(n_trials_list, fr_baseline)
 
             beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)
             beta_multiplier_s = self.rng.uniform(cfg.beta_multiplier_range[0], cfg.beta_multiplier_range[1], size=cfg.n_samples)
@@ -263,13 +263,17 @@ class ResponseSimulator:
         fr_baseline = self._handle_baseline_firing_rates()
         trial_counts = self._handle_trial_counts()
 
-        supplement_trials_counts = np.vectorize(self._handle_extra_trial_counts)()
+        supplement_trials_counts = self._handle_extra_trial_counts(trial_counts)
         
         fr_response, beta_a_s, beta_b_s = self._handle_response_type(trial_counts, fr_baseline)
         durations = self._handle_durations()
         latencies = self._handle_latencies()
 
         response_bool = 1 if cfg.response_type == "response" else 0
+
+        print(trial_counts)
+        print(supplement_trials_counts)
+        # print(fr_response)
 
         df = pd.DataFrame({
             "n_trials": trial_counts.astype(dtype=np.int32),
@@ -328,7 +332,7 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 10:
+            if i < 100:
                 self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters
@@ -438,13 +442,13 @@ class ResponseSimulator:
             s = (
                 f"{n_trials} trials\n\n"
                 f"params [time in sec]:\n"
-                f"baseline FR: {round(baseline_fr, 3)} Hz\n"
-                f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {round(latency, 3)}\n"
-                f"duration: {round(duration, 3)} s\n"
-                f"baseline_T: {cfg.baseline_T} s\n"
-                f"stimulus_T: {cfg.stimulus_T} s\n"
-                f"dt: {cfg.dt} s\n"
+                f"baseline FR:       {round(baseline_fr, 3)} Hz\n"
+                f"response FR, peak: {round(response_fr, 3)} Hz\n"
+                f"latency:           {round(latency, 3)}\n"
+                f"duration:          {round(duration, 3)} s\n"
+                f"baseline_T:        {cfg.baseline_T} s\n"
+                f"stimulus_T:        {cfg.stimulus_T} s\n"
+                f"dt:                {cfg.dt} s\n"
                 f"induce_refractory: {cfg.induce_refractory_period}\n"
                 f"beta({round(a, 3)}, {round(b, 3)})"
             )
@@ -452,13 +456,13 @@ class ResponseSimulator:
             s = (
                 f"{n_trials} trials\n\n"
                 f"params [time in sec]:\n"
-                f"baseline FR: {round(baseline_fr, 3)} Hz\n"
-                f"response FR: {round(response_fr, 3)} Hz\n"
-                f"latency: {round(latency, 3)}\n"
-                f"duration: {round(duration, 3)} s\n"
-                f"baseline_T: {cfg.baseline_T} s\n"
-                f"stimulus_T: {cfg.stimulus_T} s\n"
-                f"dt: {cfg.dt} s\n"
+                f"baseline FR:       {round(baseline_fr, 3)} Hz\n"
+                f"response FR, peak: {round(response_fr, 3)} Hz\n"
+                f"latency:           {round(latency, 3)}\n"
+                f"duration:          {round(duration, 3)} s\n"
+                f"baseline_T:        {cfg.baseline_T} s\n"
+                f"stimulus_T:        {cfg.stimulus_T} s\n"
+                f"dt:                {cfg.dt} s\n"
                 f"induce_refractory: {cfg.induce_refractory_period}\n"
             )
 

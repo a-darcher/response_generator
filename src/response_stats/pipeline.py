@@ -11,7 +11,7 @@ $ python3 pipeline.py --config configs/test.yaml
 """
 
 from __future__ import annotations
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Literal
 import yaml
 
 import shutil
@@ -32,6 +32,9 @@ from response_stats.config_plot import *
 from response_stats.matlab_io import *
 from response_stats.generators import PoissonSpikeGenerator
 
+Sampler = Literal["uniform", "exponential"]
+Method = Literal("linear_function", "gain_function", "threshold")
+
 @dataclass(frozen=True)
 class SimulationConfig: 
     n_samples: int
@@ -48,10 +51,6 @@ class SimulationConfig:
     baseline_T: float
     stimulus_T: float
     dt: float
-
-    # peak response firing rate params
-    gain_response_fr_threshold: int
-    gain_response_fr_scale: int
 
     # response shape - beta params
     beta_a_range: tuple | list
@@ -76,7 +75,25 @@ class SimulationConfig:
     baseline_scale: int | bool = False
     baseline_range: tuple | list | bool = False
 
+    # peak response firing rate params
+    response_fr_sampler: Sampler = "uniform"
+    response_fr_method: Method = "linear_function"
+    response_fr_scale: float = 2
+    response_fr_max: float = 100 
+
+    # gain response function: 
+    gain_response_threshold: float | bool = False
+
+    gain_response_y: float | bool = False
+    gain_response_high: float | bool = False
+    gain_response_e: float | bool = False 
     
+    # linear response function
+    linear_response_slope: float | bool = False
+    linear_response_offset: float | bool = False
+
+
+
     @staticmethod
     def from_yaml(path: Path) -> "SimulationConfig":
         """Construct a SimulationConfig dataclass from a config file.
@@ -135,9 +152,39 @@ class ResponseSimulator:
             n_supplement_trials = 0
         return n_supplement_trials
 
-    def _handle_response_firing_gain(self, trial_list):
+    def _gain_function(self, x, gain_y, gain_high, gain_e):
+        return (1/gain_y)**x * gain_high + gain_e
+    
+    def _linear_function(self, x):
+        return x * self.cfg.linear_response_slope + self.cfg.linear_response_offset
+
+    def _handle_response_minimum(self, fr_baseline):
+        
+        if self.cfg.response_fr_method == "threshold":
+            minimum_fr = self.cfg.gain_response_threshold
+        elif self.cfg.response_fr_method == "linear_function":
+            minimum_fr = np.vectorize(self._linear_function)(fr_baseline)
+        elif self.cfg.response_fr_method == "gain_function":
+            minimum_fr = np.vectorize(self._gain_function)(fr_baseline)
+        else:
+            TypeError
+
+        return minimum_fr
+
+    def _handle_response_firing_rates(self, trial_list, fr_baseline):
         trial_list = np.asarray(trial_list)
-        fr_responses = self.cfg.gain_response_fr_threshold - self.cfg.gain_response_fr_scale * np.log(self.rng.uniform(size=len(trial_list)))
+
+        minimum_fr = self._handle_response_minimum(fr_baseline)
+
+        if self.cfg.response_fr_sampler == "exponential":
+            fr_responses = minimum_fr - self.cfg.response_fr_scale * np.log(self.rng.uniform(size=len(trial_list)))
+
+        elif self.cfg.response_fr_sampler == "uniform":
+            # fr_responses = sample from uniform with threshold as smallest possible value and max fr value 
+            fr_responses = self.rng.uniform(low=minimum_fr, high=self.cfg.response_fr_max, size=len(trial_list))
+        else:
+            TypeError
+        
         return fr_responses
     
     def _handle_response_type(self, n_trials_list, fr_baseline):
@@ -161,7 +208,7 @@ class ResponseSimulator:
         cfg = self.cfg
 
         if cfg.response_type == "response":
-            ratios = self._handle_response_firing_gain(n_trials_list)
+            ratios = self._handle_response_firing_rates(n_trials_list, fr_baseline)
             fr_response = (fr_baseline + 1) * ratios # fr_baseline altered to be > 1 for a clear response.
 
             beta_a_s = self.rng.uniform(low=cfg.beta_a_range[0], high=cfg.beta_a_range[1], size=cfg.n_samples)

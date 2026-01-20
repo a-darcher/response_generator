@@ -1,8 +1,8 @@
 # =========================
 # General
 # =========================
-n_samples: 10000
-save_dir:  "/media/al/darch/response_stats/datasets/tests"          # e.g. "/path/to/output"
+n_samples: 100
+save_dir:  "/media/al/darch/response_stats/datasets/tests/exp_linear"          # e.g. "/path/to/output"
 save_language: "both"     # e.g. "python"
 
 # =========================
@@ -61,21 +61,21 @@ baseline_range: [0.1, 15]        # [min, max] or false
 # =========================
 # Peak response firing rate
 # =========================
-response_fr_sampler: "uniform"
+response_fr_sampler: "exponential"
 response_fr_method: "linear_function"
 response_fr_scale: 2
-response_fr_max: 100
+response_fr_max: false
 
 # =========================
 # Gain response function
 # =========================
-gain_response_fixed: 5
-gain_response_y: 3
-gain_response_high: 50
-gain_response_e: 3
+gain_response_fixed: false
+gain_response_y: false
+gain_response_high: false
+gain_response_e: false
 
 # =========================
 # Linear response function
 # =========================
 linear_response_slope: 2
-linear_response_offset: 5
+linear_response_offset: 3

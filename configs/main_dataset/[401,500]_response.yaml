@@ -1,37 +1,81 @@
-    n_samples: 500
-    response_type: "response"
+# =========================
+# General
+# =========================
+n_samples: 1000
+save_dir:  "/media/al/darch/response_stats/datasets/main"          # e.g. "/path/to/output"
+save_language: "both"     # e.g. "python"
 
-    # trial params
-    trial_range: [401,500] # 10 
+# =========================
+# Response type
+# =========================
+response_type: "response"     # "baseline" or "response"
 
-    # baseline firing rate params
-    baseline_threshold: False
-    baseline_scale: False
-    baseline_range: [0.1, 15]
-    
-    # beta params
-    beta_a_range: [1, 1.5]
-    beta_multiplier_range: [1.5, 2]
+# =========================
+# Trial parameters
+# =========================
+trial_range: [401,500]       # int | [min, max] | list
 
-    # response params
-    duration_range: [0.25, 0.7] # 0.4
-    
-    latency_range: [0.250, 0.410] # 0.35
-    
-    baseline_T: 2
-    stimulus_T: 2
-    dt: 0.001
-    induce_refractory_period: True
+# =========================
+# Time parameters
+# =========================
+baseline_T: 2        # float
+stimulus_T: 2        # float
+dt: 0.001                # float
 
-    gain_response_fr_threshold: 5
-    gain_response_fr_scale: 1
+# =========================
+# Response shape (beta params)
+# =========================
+beta_a_range: [1, 1.5]              # [min, max]
+beta_multiplier_range: [1.5, 2]     # [min, max]
 
-    # supplementary trials params
-    generate_supplementary_trials: True
-    
-    supplementary_default_count: 200
-    supplementary_default_factor: 5
+# =========================
+# Response duration
+# =========================
+duration_range: [0.25, 0.7]            # float | [min, max] | list
 
-    seed: 73
-    save_dir: "/media/al/darch/response_stats/datasets/main_1k_uniformBaseline_gainFRscale1_gainFRthreshold5" #  "/media/al/bitesized/datasets"
-    save_language: "both"
+# =========================
+# Response latency
+# =========================
+latency_range: [0.25, 0.41]             # float | [min, max] | list
+
+induce_refractory_period: true  # true / false
+
+# =========================
+# Supplementary trials
+# =========================
+generate_supplementary_trials: true
+supplementary_default_count: 200   # int or false
+
+# =========================
+# Random seed
+# =========================
+seed: 73    # set to int for reproducibility
+
+# =========================
+# Baseline firing rate
+# =========================
+baseline_threshold: false
+baseline_scale: false
+baseline_range: [0.1, 15]        # [min, max] or false
+
+# =========================
+# Peak response firing rate
+# =========================
+response_fr_sampler: "exponential"
+response_fr_method: "linear_function"
+response_fr_scale: 5
+response_fr_max: false
+
+# =========================
+# Gain response function
+# =========================
+gain_response_fixed: false
+gain_response_y: false
+gain_response_high: false
+gain_response_e: false
+
+# =========================
+# Linear response function
+# =========================
+linear_response_slope: 2
+linear_response_offset: 5

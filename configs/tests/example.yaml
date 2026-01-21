@@ -63,7 +63,7 @@ baseline_range: [0.1, 15]        # [min, max] or false
 # =========================
 response_fr_sampler: "exponential"
 response_fr_method: "linear_function"
-response_fr_scale: 2
+response_fr_scale: 5
 response_fr_max: false
 
 # =========================
@@ -78,4 +78,4 @@ gain_response_e: false
 # Linear response function
 # =========================
 linear_response_slope: 2
-linear_response_offset: 3
+linear_response_offset: 5

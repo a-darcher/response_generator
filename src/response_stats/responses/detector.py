@@ -92,8 +92,11 @@ class ResponseDetector:
         pvals_binwise = np.ones(n_bins)
 
         atrials = response_hist.any(1).sum()
-        if atrials > n_trials * cfg.proportion_active:
+        if atrials > (n_trials * cfg.proportion_active):
             raw_pvalues = self.test.compute_pvalues(self.data)
+        else:
+            print(f"{atrials} active trials out of {n_trials} trials ({round(atrials / n_trials, 3)*100}%).")
+            raw_pvalues = pvals_binwise
 
         if self.test.kind is TestKind.PARAMETRIC:  
             pvals_binwise = self._direction_mask(raw_pvalues)

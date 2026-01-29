@@ -54,9 +54,9 @@ seed: 73    # set to int for reproducibility
 # =========================
 # Baseline firing rate
 # =========================
-baseline_threshold: false
-baseline_scale: false
-baseline_range: [0.1, 15]        # [min, max] or false
+baseline_threshold: 0.01
+baseline_scale: 2.5
+baseline_range: false       # [min, max] or false
 
 # =========================
 # Peak response firing rate
@@ -78,4 +78,4 @@ gain_response_e: false
 # Linear response function
 # =========================
 linear_response_slope: 2
-linear_response_offset: 5
+linear_response_offset: 10

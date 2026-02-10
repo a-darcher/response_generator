@@ -193,4 +193,3 @@ class PoissonSpikeGenerator:
             trials.append(spike_times)
 
         return trials
-            

@@ -114,24 +114,24 @@ class PoissonSpikeGenerator:
         r_t = np.full(total_bins, float(self.baseline_fr))
 
         # overwrite the response period with the response FR
-        response_onset = int(self.latency / self.dt) + int(baseline_T / self.dt)
-        response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(baseline_T / self.dt) 
+        self.response_onset = int(self.latency / self.dt) + int(baseline_T / self.dt)
+        self.response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(baseline_T / self.dt) 
 
         if self.a and self.b:
-            x_ = np.linspace(0, 1, response_offset - response_onset)
+            x_ = np.linspace(0, 1, self.response_offset - self.response_onset)
             r_ = beta.pdf(x_, self.a, self.b)
 
             fr_response = self.response_fr - self.baseline_fr
             r_r = r_ * fr_response / np.max(r_) +  self.baseline_fr
 
             try:
-                r_t[response_onset:response_offset] = r_r
+                r_t[self.response_onset:self.response_offset] = r_r
             except ValueError:
                 print(f"stimulus time ({self.stimulus_T}) can't accomodate the response duration ({self.duration}) and latency ({self.latency}).")
                 sys.exit(1)
 
         else:       
-            r_t[response_onset:response_offset] = self.response_fr
+            r_t[self.response_onset:self.response_offset] = self.response_fr
 
         ## placeholder: add bursts. 
 

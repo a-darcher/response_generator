@@ -1,8 +1,8 @@
 # =========================
 # General
 # =========================
-n_samples: 1000
-save_dir:  "/media/al/darch/response_stats/datasets/main"          # e.g. "/path/to/output"
+n_samples: 10000
+save_dir:  "/media/al/darch/response_stats/datasets/uniform_sampling"          # e.g. "/path/to/output"
 save_language: "both"     # e.g. "python"
 
 # =========================
@@ -13,7 +13,7 @@ response_type: "response"     # "baseline" or "response"
 # =========================
 # Trial parameters
 # =========================
-trial_range: [5,6]       # int | [min, max] | list
+trial_range: [100,500]       # int | [min, max] | list
 
 # =========================
 # Time parameters
@@ -54,17 +54,17 @@ seed: 73    # set to int for reproducibility
 # =========================
 # Baseline firing rate
 # =========================
-baseline_threshold: 0.01
-baseline_scale: 2.5
-baseline_range: false       # [min, max] or false
+baseline_threshold: false
+baseline_scale: false
+baseline_range: [0, 15]       # [min, max] or false
 
 # =========================
 # Peak response firing rate
 # =========================
-response_fr_sampler: "exponential"
+response_fr_sampler: "uniform"
 response_fr_method: "linear_function"
-response_fr_scale: 5
-response_fr_max: false
+response_fr_scale: false
+response_fr_max: 60
 
 # =========================
 # Gain response function
@@ -77,5 +77,5 @@ gain_response_e: false
 # =========================
 # Linear response function
 # =========================
-linear_response_slope: 2
-linear_response_offset: 10
+linear_response_slope: 1
+linear_response_offset: 0

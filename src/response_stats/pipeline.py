@@ -80,7 +80,7 @@ class SimulationConfig:
     response_fr_method: ResponseMethod = "linear_function"
 
     response_fr_scale: float = 2
-    response_fr_max: float = 100 
+    response_fr_max: float | bool = False
 
     # gain response function: 
     gain_response_fixed: float | bool = False
@@ -120,10 +120,10 @@ class ResponseSimulator:
         (self.save_dir / "example_responses").mkdir(parents=True, exist_ok=True)
 
     def _handle_baseline_firing_rates(self):
+
         if self.cfg.baseline_threshold and self.cfg.baseline_scale:
             u = self.rng.uniform(size=self.cfg.n_samples)
             fr_baseline = self.cfg.baseline_threshold - self.cfg.baseline_scale * np.log(u)
-
         elif isinstance(self.cfg.baseline_range, (list, tuple)):
             fr_baseline = self.rng.uniform(low=self.cfg.baseline_range[0], 
                                            high=self.cfg.baseline_range[1],
@@ -144,7 +144,7 @@ class ResponseSimulator:
             raise TypeError("trial_range must be a scalar or a tuple.")
         return trial_counts
     
-    def _handle_extra_trial_counts(self, n_trials):
+    def _handle_supplementary_trial_counts(self, n_trials):
         if self.cfg.generate_supplementary_trials:
             n_supplement_trials = self.cfg.supplementary_default_count
         else:
@@ -158,7 +158,7 @@ class ResponseSimulator:
         return x * self.cfg.linear_response_slope + self.cfg.linear_response_offset
 
     def _handle_response_minimum(self, fr_baseline):
-        
+
         if self.cfg.response_fr_method == "threshold":
             gain = self.cfg.gain_response_fixed
             minimum_fr = (fr_baseline + 1) * gain
@@ -174,12 +174,10 @@ class ResponseSimulator:
 
     def _handle_response_firing_rates(self, trial_list, fr_baseline):
         trial_list = np.asarray(trial_list)
-
         minimum_fr = self._handle_response_minimum(fr_baseline)
 
         if self.cfg.response_fr_sampler == "exponential":
             fr_responses = minimum_fr - self.cfg.response_fr_scale * np.log(self.rng.uniform(size=len(trial_list)))
-
         elif self.cfg.response_fr_sampler == "uniform":
             # fr_responses = sample from uniform with threshold as smallest possible value and max fr value 
             fr_responses = self.rng.uniform(low=minimum_fr, high=self.cfg.response_fr_max, size=len(trial_list))
@@ -189,23 +187,7 @@ class ResponseSimulator:
         return fr_responses
     
     def _handle_response_type(self, n_trials_list, fr_baseline):
-        """Set generation parameters according to response type. 
-        Types: 
-        - 'response' - simulates a stimulus-elicited change in firing by varying the probability of response after onset
-        - 'baseline' - no change in firing after stimulus 'onset'
 
-        Args:
-            n_trials_list (list): trials counts for each sample to be generated
-            fr_baseline (float): firing rate during the baseline period
-
-        Raises:
-            TypeError: non-implemented response type
-
-        Returns:
-            fr_response: np.array, peak firing rate during the response period for each trial 
-            beta_a_s: np.array, alpha parameters for specifying a Beta distribution for each trial's rate function
-            beta_b_s: np.array, beta parameters for specifying a Beta distribution for each trial's rate function
-        """
         cfg = self.cfg
 
         if cfg.response_type == "response":
@@ -263,17 +245,13 @@ class ResponseSimulator:
         fr_baseline = self._handle_baseline_firing_rates()
         trial_counts = self._handle_trial_counts()
 
-        supplement_trials_counts = self._handle_extra_trial_counts(trial_counts)
+        supplement_trials_counts = self._handle_supplementary_trial_counts(trial_counts)
         
         fr_response, beta_a_s, beta_b_s = self._handle_response_type(trial_counts, fr_baseline)
         durations = self._handle_durations()
         latencies = self._handle_latencies()
 
         response_bool = 1 if cfg.response_type == "response" else 0
-
-        print(trial_counts)
-        print(supplement_trials_counts)
-        # print(fr_response)
 
         df = pd.DataFrame({
             "n_trials": trial_counts.astype(dtype=np.int32),
@@ -332,7 +310,7 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 100:
+            if i < 25:
                 self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters

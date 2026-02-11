@@ -3,3 +3,5 @@ response_stats.egg-info/dependency_links.txt
 response_stats.egg-info/PKG-INFO
 response_stats.egg-info/SOURCES.txt
 response_stats.egg-info/top_level.txt
+
+dev_nbs/plots*

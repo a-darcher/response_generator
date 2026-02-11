@@ -1,14 +1,14 @@
 # =========================
 # General
 # =========================
-n_samples: 10000
-save_dir:  "/media/al/darch/response_stats/datasets/tests"          # e.g. "/path/to/output"
+n_samples: 1000
+save_dir:  "/media/al/Seagate/movies/datasets" # "/media/al/darch/response_stats/datasets/tests"          # e.g. "/path/to/output"
 save_language: "both"     # e.g. "python"
 
 # =========================
 # Response type
 # =========================
-response_type: "response"     # "baseline" or "response"
+response_type: "baseline"     # "baseline" or "response"
 
 # =========================
 # Trial parameters

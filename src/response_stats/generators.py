@@ -49,7 +49,17 @@ from response_stats.config import default_seed
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
                  latency, duration, dt, baseline_T, stimulus_T, 
-                 induce_refractory_period=False, kappa=4, a=None, b=None, rng=None):
+                 induce_refractory_period=False, kappa=4, a=None, b=None, 
+                 #
+                 include_bursts=None, 
+                 burst_rate_baseline=None, burst_rate_response=None, 
+                 burst_rate_baseline_scale=None, burst_rate_response_scale=None,
+                 burst_response_time_factor=None, 
+                 burst_duration_lam=None,
+                 burst_alpha=None, burst_beta=None, 
+                 burst_multiplier=None,
+                 #
+                 rng=None):
         
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
@@ -67,6 +77,19 @@ class PoissonSpikeGenerator:
         self.a = a
         self.b = b
 
+        ## burst params
+        self.include_bursts = include_bursts
+        self.burst_rate_baseline = burst_rate_baseline
+        self.burst_rate_response = burst_rate_response
+        self.burst_rate_baseline_scale = burst_rate_baseline_scale
+        self.burst_rate_response_scale = burst_rate_response_scale
+        self.burst_duration_lam  = burst_duration_lam
+        self.burst_response_time_factor = burst_response_time_factor
+        self.burst_alpha         = burst_alpha
+        self.burst_beta          = burst_beta
+        self.burst_multiplier    = burst_multiplier
+
+        
         if induce_refractory_period:
             self._initialize_burn_in()
 
@@ -133,14 +156,84 @@ class PoissonSpikeGenerator:
         else:       
             r_t[self.response_onset:self.response_offset] = self.response_fr
 
-        ## placeholder: add bursts. 
-
         return r_t
 
     def _remove_burn_in_period(self, spike_times):
         spike_times = spike_times[spike_times > self.burn_in_period]
         spike_times = spike_times - self.burn_in_period
         return spike_times
+    
+    def induce_bursts(self, r_t, T_on, T_off, average_burst_rate):
+
+        segment_len = T_off - T_on
+        n_bursts = self.rng.poisson(lam=average_burst_rate * segment_len, size=1)[0]
+        burst_onsets = np.sort(self.rng.uniform(low=T_on, high=T_off, size=n_bursts))
+        burst_onsets_ms = np.array(burst_onsets / self.dt, dtype=int)
+
+        burst_duration = np.array(self.rng.normal(self.burst_duration_lam, self.burst_duration_lam / 4, size=n_bursts), dtype=int) # ms
+        
+        for b in range(n_bursts):
+            x_ = np.linspace(0, 1, burst_duration[b])
+            r_ = beta.pdf(x_, self.burst_alpha, self.burst_beta)
+            r_r = r_ * self.burst_multiplier + self.baseline_fr
+
+            end_burst = np.min([burst_onsets_ms[b]+burst_duration[b], (T_off / self.dt)],)
+            end_burst = int(end_burst)
+            burst_len = end_burst - burst_onsets_ms[b]
+
+            r_t[burst_onsets_ms[b]: end_burst] = r_r[:burst_len]
+        
+        return r_t
+
+    def generate_with_bursts(self, n_trials: int = 2,):
+        dt = self.dt
+
+        baseline_burst_rate = abs(self.rng.normal(self.burst_rate_baseline, self.burst_rate_baseline_scale, 1))
+        response_burst_rate = abs(self.rng.normal(self.burst_rate_response, self.burst_rate_baseline_scale, 1))
+
+        response_time_buffer = self.duration / self.burst_response_time_factor
+
+        trials: list[np.ndarray] = []
+        for i in range(n_trials):
+
+            r_t = self.r_t.copy()
+
+            if self.baseline_fr == self.response_fr:
+                T_on = 0
+                T_off = (self.baseline_T + self.stimulus_T) * dt
+                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+            
+            else:
+                T_on = 0
+                T_off = (self.response_onset * dt) - response_time_buffer
+                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+                
+                T_on = self.response_offset * dt
+                T_off = (self.baseline_T + self.stimulus_T)
+                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+
+                T_on = (self.response_onset * dt) - response_time_buffer
+                T_off = (self.response_offset * dt) - (self.duration / 2)
+                r_t = self.induce_bursts(r_t, T_on, T_off, response_burst_rate)
+
+            p = r_t * dt 
+            hits = self.rng.random(size=(n_trials, self.total_bins)) <= p
+            idx = np.flatnonzero(hits[i])
+            spike_times = idx.astype(float) * dt
+
+            # remove the "right-hand" spikes corresponding to the 10th percentile of the ISIs
+            isis = np.diff(spike_times)
+            if len(isis) > 1:
+                perc_val = np.percentile(isis, 10, axis=0)
+
+                inds = np.where(isis <= perc_val)[0]
+
+                bad_spikes = inds + 1
+                spike_times = np.delete(spike_times, bad_spikes)
+
+            trials.append(spike_times)
+
+        return trials
 
     def generate(self, n_trials: int = 1, squeeze: bool = True):
         """
@@ -159,8 +252,11 @@ class PoissonSpikeGenerator:
         spikes : np.ndarray or list[np.ndarray]
             Spike times (seconds). 1D array if squeeze and n_trials==1, else list.
         """
+    
+        if self.include_bursts: 
+            return self.generate_with_bursts(n_trials,) 
+    
         dt = self.dt
-
         if self.induce_refractory_period:
             total_bins = self.burn_in_total_bins
             r_t = self.burn_in_r_t
@@ -174,6 +270,7 @@ class PoissonSpikeGenerator:
             hits = self.rng.random(total_bins) <= p
             idx = np.flatnonzero(hits)
             spike_times = idx.astype(float) * dt
+
             if self.induce_refractory_period:
                 spike_times = self._force_renewal_process(spike_times)
                 spike_times = self._remove_burn_in_period(spike_times)
@@ -193,3 +290,4 @@ class PoissonSpikeGenerator:
             trials.append(spike_times)
 
         return trials
+    

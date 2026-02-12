@@ -64,6 +64,18 @@ class SimulationConfig:
     
     induce_refractory_period: bool
 
+    # burst params
+    include_bursts: bool = False
+    burst_rate_baseline: float | bool = False
+    burst_rate_response: float | bool = False
+    burst_rate_baseline_scale: float | bool = False
+    burst_rate_response_scale: float | bool = False
+    burst_duration_lam: float | bool = False
+    burst_response_time_factor: float | bool = False
+    burst_alpha: float | bool = False
+    burst_beta: float | bool = False
+    burst_multiplier: float | bool = False
+
     # supplementary trials params
     generate_supplementary_trials: bool = False
     supplementary_default_count: int | bool = False
@@ -295,7 +307,17 @@ class ResponseSimulator:
             induce_refractory_period=cfg.induce_refractory_period,
             rng=rng,
             a=a,
-            b=b, 
+            b=b,
+            include_bursts=cfg.include_bursts, 
+            burst_rate_baseline=cfg.burst_rate_baseline, 
+            burst_rate_response=cfg.burst_rate_response, 
+            burst_rate_baseline_scale=cfg.burst_rate_baseline_scale, 
+            burst_rate_response_scale=cfg.burst_rate_response_scale,
+            burst_response_time_factor=cfg.burst_response_time_factor, 
+            burst_duration_lam=cfg.burst_duration_lam,
+            burst_alpha=cfg.burst_alpha, 
+            burst_beta=cfg.burst_beta,
+            burst_multiplier=cfg.burst_multiplier,
             )
 
             # generate trials

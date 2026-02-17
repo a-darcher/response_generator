@@ -79,3 +79,17 @@ gain_response_e: false
 # =========================
 linear_response_slope: 1
 linear_response_offset: 0
+
+# =========================
+# Burst Params
+# =========================
+include_bursts: true
+burst_rate_baseline: 0
+burst_rate_response: 15
+burst_rate_baseline_scale: 1
+burst_rate_response_scale: 2
+burst_duration_lam: 150
+burst_response_time_factor: 5
+burst_alpha: 1.5
+burst_beta: 3
+burst_multiplier: 15

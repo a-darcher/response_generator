@@ -245,6 +245,16 @@ class ResponseSimulator:
             raise TypeError("latency_range must be a scalar or a tuple.")
         return latencies
 
+    def _handle_burst_rates(self) -> np.ndarray:
+        if self.cfg.include_bursts:
+            burst_rate_baseline_all = np.abs(self.rng.normal(self.cfg.burst_rate_baseline, self.cfg.burst_rate_baseline_scale, self.cfg.n_samples))
+            burst_rate_response_all = np.abs(self.rng.normal(self.cfg.burst_rate_response, self.cfg.burst_rate_response_scale, self.cfg.n_samples))
+        else:
+            burst_rate_baseline_all = np.zeros(self.cfg.n_samples)
+            burst_rate_response_all = np.zeros(self.cfg.n_samples)
+
+        return burst_rate_baseline_all, burst_rate_response_all
+
     def run(self) -> pd.DataFrame:
         """Runner for simulating the specified batch of units.
 
@@ -263,6 +273,8 @@ class ResponseSimulator:
         durations = self._handle_durations()
         latencies = self._handle_latencies()
 
+        burst_rate_baseline_all, burst_rate_response_all = self._handle_burst_rates()
+
         response_bool = 1 if cfg.response_type == "response" else 0
 
         df = pd.DataFrame({
@@ -278,6 +290,8 @@ class ResponseSimulator:
             "refractory_period_induced": np.full(cfg.n_samples, cfg.induce_refractory_period, dtype=np.int8),
             "beta_a": beta_a_s.astype(float),
             "beta_b": beta_b_s.astype(float),
+            "baseline_burst_rate": burst_rate_baseline_all.astype(float),
+            "response_burst_rate": burst_rate_response_all.astype(float),
         })
 
         rasters = [None] * cfg.n_samples
@@ -296,6 +310,9 @@ class ResponseSimulator:
             a = beta_a_s[i]
             b = beta_b_s[i]
 
+            burst_rate_baseline = burst_rate_baseline_all[i]
+            burst_rate_response = burst_rate_response_all[i]
+
             generator = PoissonSpikeGenerator(
             baseline_fr=baseline_fr,
             response_fr=response_fr,
@@ -309,11 +326,10 @@ class ResponseSimulator:
             a=a,
             b=b,
             include_bursts=cfg.include_bursts, 
-            burst_rate_baseline=cfg.burst_rate_baseline, 
-            burst_rate_response=cfg.burst_rate_response, 
-            burst_rate_baseline_scale=cfg.burst_rate_baseline_scale, 
-            burst_rate_response_scale=cfg.burst_rate_response_scale,
+            burst_rate_baseline=burst_rate_baseline, 
+            burst_rate_response=burst_rate_response, 
             burst_response_time_factor=cfg.burst_response_time_factor, 
+            # trial-wise burst params
             burst_duration_lam=cfg.burst_duration_lam,
             burst_alpha=cfg.burst_alpha, 
             burst_beta=cfg.burst_beta,
@@ -450,21 +466,26 @@ class ResponseSimulator:
                 f"stimulus_T:        {cfg.stimulus_T} s\n"
                 f"dt:                {cfg.dt} s\n"
                 f"induce_refractory: {cfg.induce_refractory_period}\n"
-                f"beta({round(a, 3)}, {round(b, 3)})"
+                f"beta({round(a, 3)}, {round(b, 3)})\n"
+                f"burst rates - b: {round(generator.burst_rate_baseline, 3)}  r: {round(generator.burst_rate_response, 3)}\n"
+                f"avg. burst duration: {generator.burst_duration_lam} ms\n"
             )
         else:
             s = (
-                f"{n_trials} trials\n\n"
-                f"params [time in sec]:\n"
-                f"baseline FR:       {round(baseline_fr, 3)} Hz\n"
-                f"response FR, peak: {round(response_fr, 3)} Hz\n"
-                f"latency:           {round(latency, 3)}\n"
-                f"duration:          {round(duration, 3)} s\n"
-                f"baseline_T:        {cfg.baseline_T} s\n"
-                f"stimulus_T:        {cfg.stimulus_T} s\n"
-                f"dt:                {cfg.dt} s\n"
-                f"induce_refractory: {cfg.induce_refractory_period}\n"
-            )
+            f"{n_trials} trials\n\n"
+            f"params [time in sec]:\n"
+            f"baseline FR:       {round(baseline_fr, 3)} Hz\n"
+            f"response FR, peak: {round(response_fr, 3)} Hz\n"
+            f"latency:           {round(latency, 3)}\n"
+            f"duration:          {round(duration, 3)} s\n"
+            f"baseline_T:        {cfg.baseline_T} s\n"
+            f"stimulus_T:        {cfg.stimulus_T} s\n"
+            f"dt:                {cfg.dt} s\n"
+            f"induce_refractory: {cfg.induce_refractory_period}\n"
+            f"burst rates - b: {round(generator.burst_rate_baseline, 3)}  r: {round(generator.burst_rate_response, 3)}\n"
+            f"avg. burst duration: {generator.burst_duration_lam} ms\n"
+        )
+
 
         ax.text(
             0.0, 1.0,

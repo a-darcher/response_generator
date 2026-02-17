@@ -53,7 +53,6 @@ class PoissonSpikeGenerator:
                  #
                  include_bursts=None, 
                  burst_rate_baseline=None, burst_rate_response=None, 
-                 burst_rate_baseline_scale=None, burst_rate_response_scale=None,
                  burst_response_time_factor=None, 
                  burst_duration_lam=None,
                  burst_alpha=None, burst_beta=None, 
@@ -81,15 +80,12 @@ class PoissonSpikeGenerator:
         self.include_bursts = include_bursts
         self.burst_rate_baseline = burst_rate_baseline
         self.burst_rate_response = burst_rate_response
-        self.burst_rate_baseline_scale = burst_rate_baseline_scale
-        self.burst_rate_response_scale = burst_rate_response_scale
         self.burst_duration_lam  = burst_duration_lam
         self.burst_response_time_factor = burst_response_time_factor
         self.burst_alpha         = burst_alpha
         self.burst_beta          = burst_beta
         self.burst_multiplier    = burst_multiplier
 
-        
         if induce_refractory_period:
             self._initialize_burn_in()
 
@@ -139,7 +135,6 @@ class PoissonSpikeGenerator:
         # overwrite the response period with the response FR
         self.response_onset = int(self.latency / self.dt) + int(baseline_T / self.dt)
         self.response_offset = int((self.latency / self.dt) + int(self.duration / self.dt)) + int(baseline_T / self.dt) 
-
         if self.a and self.b:
             x_ = np.linspace(0, 1, self.response_offset - self.response_onset)
             r_ = beta.pdf(x_, self.a, self.b)
@@ -152,7 +147,6 @@ class PoissonSpikeGenerator:
             except ValueError:
                 print(f"stimulus time ({self.stimulus_T}) can't accomodate the response duration ({self.duration}) and latency ({self.latency}).")
                 sys.exit(1)
-
         else:       
             r_t[self.response_onset:self.response_offset] = self.response_fr
 
@@ -171,7 +165,7 @@ class PoissonSpikeGenerator:
         burst_onsets_ms = np.array(burst_onsets / self.dt, dtype=int)
 
         burst_duration = np.array(self.rng.normal(self.burst_duration_lam, self.burst_duration_lam / 4, size=n_bursts), dtype=int) # ms
-        
+        burst_duration = np.abs(burst_duration)
         for b in range(n_bursts):
             x_ = np.linspace(0, 1, burst_duration[b])
             r_ = beta.pdf(x_, self.burst_alpha, self.burst_beta)
@@ -188,9 +182,6 @@ class PoissonSpikeGenerator:
     def generate_with_bursts(self, n_trials: int = 2,):
         dt = self.dt
 
-        baseline_burst_rate = abs(self.rng.normal(self.burst_rate_baseline, self.burst_rate_baseline_scale, 1))
-        response_burst_rate = abs(self.rng.normal(self.burst_rate_response, self.burst_rate_baseline_scale, 1))
-
         response_time_buffer = self.duration / self.burst_response_time_factor
 
         trials: list[np.ndarray] = []
@@ -200,36 +191,37 @@ class PoissonSpikeGenerator:
 
             if self.baseline_fr == self.response_fr:
                 T_on = 0
-                T_off = (self.baseline_T + self.stimulus_T) * dt
-                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+                T_off = (self.baseline_T + self.stimulus_T)
+                r_t = self.induce_bursts(r_t, T_on, T_off, self.burst_rate_baseline,)
             
             else:
                 T_on = 0
                 T_off = (self.response_onset * dt) - response_time_buffer
-                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+                r_t = self.induce_bursts(r_t, T_on, T_off, self.burst_rate_baseline,)
                 
                 T_on = self.response_offset * dt
                 T_off = (self.baseline_T + self.stimulus_T)
-                r_t = self.induce_bursts(r_t, T_on, T_off, baseline_burst_rate,)
+                r_t = self.induce_bursts(r_t, T_on, T_off, self.burst_rate_baseline,)
 
                 T_on = (self.response_onset * dt) - response_time_buffer
                 T_off = (self.response_offset * dt) - (self.duration / 2)
-                r_t = self.induce_bursts(r_t, T_on, T_off, response_burst_rate)
+                r_t = self.induce_bursts(r_t, T_on, T_off, self.burst_rate_response)
 
             p = r_t * dt 
-            hits = self.rng.random(size=(n_trials, self.total_bins)) <= p
-            idx = np.flatnonzero(hits[i])
+            u = self.rng.random(self.total_bins) 
+            idx = np.flatnonzero(u <= p)
             spike_times = idx.astype(float) * dt
 
             # remove the "right-hand" spikes corresponding to the 10th percentile of the ISIs
             isis = np.diff(spike_times)
-            if len(isis) > 1:
-                perc_val = np.percentile(isis, 10, axis=0)
-
-                inds = np.where(isis <= perc_val)[0]
-
-                bad_spikes = inds + 1
-                spike_times = np.delete(spike_times, bad_spikes)
+            if isis.size > 1:
+                
+                k = max(0, int(0.1 * isis.size) - 1)
+                thr = np.partition(isis, k)[k]
+                bad = np.flatnonzero(isis <= thr) + 1
+                keep = np.ones(spike_times.size, dtype=bool)
+                keep[bad] = False
+                spike_times = spike_times[keep]
 
             trials.append(spike_times)
 

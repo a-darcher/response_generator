@@ -1,0 +1,81 @@
+# =========================
+# General
+# =========================
+n_samples: 10000
+save_dir:  "/media/al/darch/response_stats/datasets/uniform_sampling"          # e.g. "/path/to/output"
+save_language: "both"     # e.g. "python"
+
+# =========================
+# Response type
+# =========================
+response_type: "response"     # "baseline" or "response"
+
+# =========================
+# Trial parameters
+# =========================
+trial_range: [5,15]       # int | [min, max] | list
+
+# =========================
+# Time parameters
+# =========================
+baseline_T: 2        # float
+stimulus_T: 2        # float
+dt: 0.001                # float
+
+# =========================
+# Response shape (beta params)
+# =========================
+beta_a_range: [1, 1.5]              # [min, max]
+beta_multiplier_range: [1.5, 2]     # [min, max]
+
+# =========================
+# Response duration
+# =========================
+duration_range: [0.25, 0.7]            # float | [min, max] | list
+
+# =========================
+# Response latency
+# =========================
+latency_range: [0.25, 0.41]             # float | [min, max] | list
+
+induce_refractory_period: true  # true / false
+
+# =========================
+# Supplementary trials
+# =========================
+generate_supplementary_trials: true
+supplementary_default_count: 200   # int or false
+
+# =========================
+# Random seed
+# =========================
+seed: 73    # set to int for reproducibility
+
+# =========================
+# Baseline firing rate
+# =========================
+baseline_threshold: false
+baseline_scale: false
+baseline_range: [0, 15]       # [min, max] or false
+
+# =========================
+# Peak response firing rate
+# =========================
+response_fr_sampler: "uniform"
+response_fr_method: "linear_function"
+response_fr_scale: false
+response_fr_max: 60
+
+# =========================
+# Gain response function
+# =========================
+gain_response_fixed: false
+gain_response_y: false
+gain_response_high: false
+gain_response_e: false
+
+# =========================
+# Linear response function
+# =========================
+linear_response_slope: 1
+linear_response_offset: 0

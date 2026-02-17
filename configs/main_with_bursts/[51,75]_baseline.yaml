@@ -1,0 +1,95 @@
+# =========================
+# General
+# =========================
+n_samples: 1000
+save_dir:  "/media/al/darch/response_stats/datasets/bursts"          # e.g. "/path/to/output"
+save_language: "both"     # e.g. "python"
+
+# =========================
+# Response type
+# =========================
+response_type: "baseline"     # "baseline" or "baseline"
+
+# =========================
+# Trial parameters
+# =========================
+trial_range: [51,75]       # int | [min, max] | list
+
+# =========================
+# Time parameters
+# =========================
+baseline_T: 2        # float
+stimulus_T: 2        # float
+dt: 0.001                # float
+
+# =========================
+# Response shape (beta params)
+# =========================
+beta_a_range: [1, 1.5]              # [min, max]
+beta_multiplier_range: [1.5, 2]     # [min, max]
+
+# =========================
+# Response duration
+# =========================
+duration_range: [0.25, 0.7]            # float | [min, max] | list
+
+# =========================
+# Response latency
+# =========================
+latency_range: [0.25, 0.41]             # float | [min, max] | list
+
+induce_refractory_period: true  # true / false
+
+# =========================
+# Supplementary trials
+# =========================
+generate_supplementary_trials: true
+supplementary_default_count: 200   # int or false
+
+# =========================
+# Random seed
+# =========================
+seed: 73    # set to int for reproducibility
+
+# =========================
+# Baseline firing rate
+# =========================
+baseline_threshold: 0.01
+baseline_scale: 2.5
+baseline_range: false       # [min, max] or false
+
+# =========================
+# Peak response firing rate
+# =========================
+response_fr_sampler: "exponential"
+response_fr_method: "linear_function"
+response_fr_scale: 5
+response_fr_max: false
+
+# =========================
+# Gain response function
+# =========================
+gain_response_fixed: false
+gain_response_y: false
+gain_response_high: false
+gain_response_e: false
+
+# =========================
+# Linear response function
+# =========================
+linear_response_slope: 2
+linear_response_offset: 10
+
+# =========================
+# Burst Params
+# =========================
+include_bursts: true
+burst_rate_baseline: 0
+burst_rate_response: 15
+burst_rate_baseline_scale: 1
+burst_rate_response_scale: 2
+burst_duration_lam: 150
+burst_response_time_factor: 5
+burst_alpha: 1.5
+burst_beta: 3
+burst_multiplier: 15

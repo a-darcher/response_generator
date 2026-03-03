@@ -93,3 +93,5 @@ burst_response_time_factor: 5
 burst_alpha: 1.5
 burst_beta: 3
 burst_multiplier: 15
+burst_rate_factor: 0.25
+

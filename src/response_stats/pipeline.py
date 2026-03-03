@@ -67,6 +67,7 @@ class SimulationConfig:
     # burst params
     include_bursts: bool = False
     burst_rate_baseline: float | bool = False
+    burst_rate_factor:   float | bool = False
     burst_rate_response: float | bool = False
     burst_rate_baseline_scale: float | bool = False
     burst_rate_response_scale: float | bool = False
@@ -275,6 +276,7 @@ class ResponseSimulator:
         latencies = self._handle_latencies()
 
         burst_rate_baseline_all, burst_rate_response_all = self._handle_burst_rates()
+        burst_rate_factor = self.cfg.burst_rate_factor
 
         response_bool = 1 if cfg.response_type == "response" else 0
 
@@ -293,6 +295,7 @@ class ResponseSimulator:
             "beta_b": beta_b_s.astype(float),
             "baseline_burst_rate": burst_rate_baseline_all.astype(float),
             "response_burst_rate": burst_rate_response_all.astype(float),
+            "burst_rate_factor:": np.full(cfg.n_samples, burst_rate_factor, dtype=float),
         })
 
         rasters = [None] * cfg.n_samples
@@ -315,27 +318,29 @@ class ResponseSimulator:
             burst_rate_response = burst_rate_response_all[i]
 
             generator = PoissonSpikeGenerator(
-            baseline_fr=baseline_fr,
-            response_fr=response_fr,
-            latency=latency,
-            duration=duration,
-            baseline_T=cfg.baseline_T,
-            stimulus_T=cfg.stimulus_T,
-            dt=cfg.dt,
-            induce_refractory_period=cfg.induce_refractory_period,
-            rng=rng,
-            a=a,
-            b=b,
-            include_bursts=cfg.include_bursts, 
-            burst_rate_baseline=burst_rate_baseline, 
-            burst_rate_response=burst_rate_response, 
-            burst_response_time_factor=cfg.burst_response_time_factor, 
-            # trial-wise burst params
-            burst_duration_lam=cfg.burst_duration_lam,
-            burst_alpha=cfg.burst_alpha, 
-            burst_beta=cfg.burst_beta,
-            burst_multiplier=cfg.burst_multiplier,
-            )
+                            baseline_fr=baseline_fr,
+                            response_fr=response_fr,
+                            latency=latency,
+                            duration=duration,
+                            baseline_T=cfg.baseline_T,
+                            stimulus_T=cfg.stimulus_T,
+                            dt=cfg.dt,
+                            induce_refractory_period=cfg.induce_refractory_period,
+                            rng=rng,
+                            a=a,
+                            b=b,
+                            # burst params
+                            include_bursts=cfg.include_bursts, 
+                            burst_rate_baseline=burst_rate_baseline, 
+                            burst_rate_factor=burst_rate_factor,
+                            burst_rate_response=burst_rate_response, 
+                            burst_response_time_factor=cfg.burst_response_time_factor, 
+                            # trial-wise burst params
+                            burst_duration_lam=cfg.burst_duration_lam,
+                            burst_alpha=cfg.burst_alpha, 
+                            burst_beta=cfg.burst_beta,
+                            burst_multiplier=cfg.burst_multiplier,
+                            )
 
             # generate trials
             trial_activity = generator.generate(n_trials)
@@ -486,7 +491,6 @@ class ResponseSimulator:
             f"burst rates - b: {round(generator.burst_rate_baseline, 3)}  r: {round(generator.burst_rate_response, 3)}\n"
             f"avg. burst duration: {generator.burst_duration_lam} ms\n"
         )
-
 
         ax.text(
             0.0, 1.0,

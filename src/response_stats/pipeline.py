@@ -354,7 +354,7 @@ class ResponseSimulator:
             if cfg.generate_supplementary_trials:
                 supplement_trials[i] = supp_trial_activity
 
-            if i < 25:
+            if i < 50:
                 self._plot_example(i, n_trials, baseline_fr, response_fr, duration, latency, a, b, generator, trial_activity)
 
         df["rasters"] = rasters

@@ -2,7 +2,7 @@
 # General
 # =========================
 n_samples: 10000
-save_dir:  "/media/al/darch/response_stats/datasets/uniform_sampling"          # e.g. "/path/to/output"
+save_dir:  "/media/al/darch/response_stats/datasets/uniform_sampling_with_bursts"          # e.g. "/path/to/output"
 save_language: "both"     # e.g. "python"
 
 # =========================

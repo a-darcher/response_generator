@@ -5,3 +5,4 @@ response_stats.egg-info/SOURCES.txt
 response_stats.egg-info/top_level.txt
 
 dev_nbs/plots*
+dev_nbs/data/*

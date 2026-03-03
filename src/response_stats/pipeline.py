@@ -75,6 +75,7 @@ class SimulationConfig:
     burst_alpha: float | bool = False
     burst_beta: float | bool = False
     burst_multiplier: float | bool = False
+    burst_rate_factor: float | bool = False
 
     # supplementary trials params
     generate_supplementary_trials: bool = False
@@ -500,6 +501,7 @@ class ResponseSimulator:
         ax.set_yticks([])
 
         sns.despine(left=True, bottom=True, ax=ax)
+        
                 
         if bool(a):
             fname = f"{i}_{n_trials}trials_{int(baseline_fr)}bFR_{int(response_fr)}rFR_{round(duration,2)}duration_beta{round(a,2)}-{round(b,2)}.png"

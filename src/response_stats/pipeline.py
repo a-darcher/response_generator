@@ -295,7 +295,7 @@ class ResponseSimulator:
             "beta_b": beta_b_s.astype(float),
             "baseline_burst_rate": burst_rate_baseline_all.astype(float),
             "response_burst_rate": burst_rate_response_all.astype(float),
-            "burst_rate_factor:": np.full(cfg.n_samples, burst_rate_factor, dtype=float),
+            "burst_rate_factor": np.full(cfg.n_samples, burst_rate_factor, dtype=float),
         })
 
         rasters = [None] * cfg.n_samples

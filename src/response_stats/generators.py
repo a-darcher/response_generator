@@ -247,8 +247,10 @@ class PoissonSpikeGenerator:
         ####
         #discrepancy_spikes = diff_spike_count + np.array(self.rng.normal(0, 0.5, 1) * gt_mean, dtype=int)[0]
 
-        if discrepancy_spikes <= 0:
-            return np.empty((0, 2))
+        expected_number_spikes = gt_mean * (T_off - T_on) * n_trials
+        
+        # if discrepancy_spikes <= 0:
+        #     return np.empty((0, 2))
 
         response_spikes = []
         for i, t in enumerate(trial_activity):
@@ -257,10 +259,12 @@ class PoissonSpikeGenerator:
             trial_inds = np.ones(len(spikes_inds)) * i
             response_spikes.extend(list(zip(trial_inds, spikes_inds)))
 
+        discrepancy_spikes = len(response_spikes) - expected_number_spikes
+
         ####
         # control for instances where the number of discrepant spikes (as calculated
         # based on the estimated firing rate) is greater than the number of response
-        # spikes actually generated. 
+        # spikes actually generated, e.g. negative responses
         if discrepancy_spikes > len(response_spikes):
             return np.empty((0, 2))
         

@@ -6,3 +6,43 @@ response_stats.egg-info/top_level.txt
 
 dev_nbs/plots*
 dev_nbs/data/*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+
+# virtual environments
+venv/
+.venv/
+env/
+
+# Sphinx build output
+docs-api/_build/
+docs-site/static/api-ref/
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Docusaurus
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/.cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+.env
+.env.local

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='response_stats',
+    name='response_generator',
     version='0.0.1',
     url='https://github.com/a-darcher/response_stats',
     author='Alana Darcher',

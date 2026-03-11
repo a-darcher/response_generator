@@ -38,7 +38,7 @@ const config: Config = {
     navbar: {
       title: 'Response Generator',
       items: [
-        {to: '/', label: 'Playground', position: 'left'},
+        {to: '/', label: 'Demos', position: 'left'},
         {to: '/docs/intro', label: 'Docs', position: 'left'},
         {to: '/api-ref', label: 'API Reference', position: 'left'},
         {

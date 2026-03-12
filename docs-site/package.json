@@ -1,0 +1,22 @@
+{
+  "name": "response-generator-docs",
+  "private": true,
+  "scripts": {
+    "prestart": "bash ../scripts/build_api_docs.sh",
+    "start": "docusaurus start",
+    "prebuild": "bash ../scripts/build_api_docs.sh",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/preset-classic": "^3.9.2",
+    "@mdx-js/react": "^3.0.1",
+    "clsx": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

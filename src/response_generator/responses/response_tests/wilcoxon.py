@@ -1,4 +1,4 @@
-from response_stats.responses.response_tests.base import *
+from response_generator.responses.response_tests.base import *
 from scipy.stats import wilcoxon
 
 class WilcoxonTest(ResponseTest):

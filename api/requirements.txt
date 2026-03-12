@@ -1,4 +1,6 @@
 fastapi
 uvicorn[standard]
 pydantic
-python-multipart
+numpy
+matplotlib
+seaborn

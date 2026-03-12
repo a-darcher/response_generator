@@ -1,7 +1,7 @@
 import numpy as np
 
-from response_stats.responses.config import ResponseData
-from response_stats.responses.response_tests import ResponseTest, TestKind
+from response_generator.responses.config import ResponseData
+from response_generator.responses.response_tests import ResponseTest, TestKind
 
 class ResponseDetector:
     def __init__(self, data: ResponseData, test_cls: type[ResponseTest], **test_kwargs):

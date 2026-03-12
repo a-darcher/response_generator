@@ -1,7 +1,7 @@
-from response_stats.responses.response_tests.base import * 
+from response_generator.responses.response_tests.base import * 
 from scipy.stats import ttest_ind
 
-from response_stats.config import default_seed
+from response_generator.config import default_seed
 
 class SurrogateTest(ResponseTest):
     kind = TestKind.SURROGATE

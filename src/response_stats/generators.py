@@ -48,9 +48,6 @@ from scipy.stats import beta
 
 from response_stats.config import default_seed
 
-import matplotlib.pyplot as plt
-
-
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 
                  latency, duration, dt, baseline_T, stimulus_T, 
@@ -65,7 +62,8 @@ class PoissonSpikeGenerator:
                  burst_alpha=None, burst_beta=None, 
                  burst_multiplier=None,
                  #
-                 rng=None):
+                 rng=None,
+                 debug=False):
         
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
@@ -103,6 +101,11 @@ class PoissonSpikeGenerator:
             self.rng = np.random.default_rng(default_seed)
         else:
             self.rng = rng
+
+        if debug:
+            self.debug = debug
+            self.burst_r_t_collection = []
+
 
     def _force_renewal_process(self, spike_train):
         """
@@ -245,10 +248,11 @@ class PoissonSpikeGenerator:
         fr_diff = np.mean(mean_fr_section) - gt_mean
         discrepancy_spikes = int(fr_diff * (T_off - T_on) * n_trials)
         ####
-        #discrepancy_spikes = diff_spike_count + np.array(self.rng.normal(0, 0.5, 1) * gt_mean, dtype=int)[0]
+        discrepancy_spikes = discrepancy_spikes + np.array(self.rng.normal(0, 0.5, 1) * gt_mean, dtype=int)[0]
 
-        if discrepancy_spikes <= 0:
-            return np.empty((0, 2))
+        #expected_number_spikes = gt_mean * (T_off - T_on) * n_trials
+        
+        
 
         response_spikes = []
         for i, t in enumerate(trial_activity):
@@ -257,11 +261,15 @@ class PoissonSpikeGenerator:
             trial_inds = np.ones(len(spikes_inds)) * i
             response_spikes.extend(list(zip(trial_inds, spikes_inds)))
 
+        #discrepancy_spikes = int(len(response_spikes) - expected_number_spikes)
+
         ####
         # control for instances where the number of discrepant spikes (as calculated
         # based on the estimated firing rate) is greater than the number of response
-        # spikes actually generated. 
+        # spikes actually generated, e.g. negative responses
         if discrepancy_spikes > len(response_spikes):
+            return np.empty((0, 2))
+        elif discrepancy_spikes <= 0:
             return np.empty((0, 2))
         
         thin_ind = self.rng.choice(response_spikes, size=discrepancy_spikes, replace=False, )
@@ -334,7 +342,8 @@ class PoissonSpikeGenerator:
             _type_: _description_
         """
         dt = self.dt
-
+        u = self.rng.random(size=(n_trials, self.total_bins))
+        
         trials: list[np.ndarray] = []
         for i in range(n_trials):
             r_t = self.r_t.copy()
@@ -364,8 +373,10 @@ class PoissonSpikeGenerator:
             #     plt.plot(self.r_t, color="pink")
             #     plt.show()
 
-            u = self.rng.random(self.total_bins) 
-            idx = np.flatnonzero(u <= p)
+            if self.debug:
+                self.burst_r_t_collection.append(r_t)
+
+            idx = np.flatnonzero(u[i] <= p)
             spike_times = idx.astype(float) * dt
 
             # remove the "right-hand" spikes corresponding to the 10th percentile of the ISIs
@@ -425,8 +436,9 @@ class PoissonSpikeGenerator:
                 spike_times = self._remove_burn_in_period(spike_times)
 
             return spike_times if squeeze else [spike_times]
-
-        hits = self.rng.random(size=(n_trials, total_bins)) <= p
+        
+        u = self.rng.random(size=(n_trials, total_bins))
+        hits = u <= p
         trials: list[np.ndarray] = []
         for i in range(n_trials):
             idx = np.flatnonzero(hits[i])

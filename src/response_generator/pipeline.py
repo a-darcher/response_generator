@@ -473,9 +473,12 @@ class ResponseSimulator:
                 f"dt:                {cfg.dt} s\n"
                 f"induce_refractory: {cfg.induce_refractory_period}\n"
                 f"beta({round(a, 3)}, {round(b, 3)})\n"
-                f"burst rates - b: {round(generator.burst_rate_baseline, 3)}  r: {round(generator.burst_rate_response, 3)}\n"
+                f"burst rates - b: {round(generator.burst_rate_baseline, 3) if generator.burst_rate_baseline is not None else 'N/A'} "
+                f"r: {round(generator.burst_rate_response, 3) if generator.burst_rate_response is not None else 'N/A'}\n"
                 f"avg. burst duration: {generator.burst_duration_lam} ms\n"
             )
+
+
         else:
             s = (
             f"{n_trials} trials\n\n"
@@ -488,8 +491,9 @@ class ResponseSimulator:
             f"stimulus_T:        {cfg.stimulus_T} s\n"
             f"dt:                {cfg.dt} s\n"
             f"induce_refractory: {cfg.induce_refractory_period}\n"
-            f"burst rates - b: {round(generator.burst_rate_baseline, 3)}  r: {round(generator.burst_rate_response, 3)}\n"
-            f"avg. burst duration: {generator.burst_duration_lam} ms\n"
+            f"burst rates - b: {round(generator.burst_rate_baseline, 3) if generator.burst_rate_baseline is not None else 'N/A'} "
+            f"r: {round(generator.burst_rate_response, 3) if generator.burst_rate_response is not None else 'N/A'}\n"
+            f"avg. burst duration: {generator.burst_duration_lam if generator.burst_duration_lam is not None else 'N/A'} ms\n"
         )
 
         ax.text(

@@ -82,6 +82,7 @@ class PoissonSpikeGenerator:
 
         ## burst params
         self.include_bursts = include_bursts
+        
         self.burst_rate_baseline = burst_rate_baseline
         self.burst_rate_factor   = burst_rate_factor
         self.burst_rate_response = self._handle_burst_rate_response(burst_rate_response)
@@ -164,6 +165,11 @@ class PoissonSpikeGenerator:
     
     def _handle_burst_rate_response(self, burst_rate_response):
         # ensure that burst rate is lowered for negative responses
+        if not self.include_bursts:
+            return None
+        else: 
+            pass
+
         if self.response_fr < self.baseline_fr:
             burst_rate_response = 0
         elif np.isclose(self.response_fr, self.baseline_fr, atol=0.01):
@@ -174,6 +180,11 @@ class PoissonSpikeGenerator:
         return burst_rate_response
     
     def _handle_burst_multiplier_response(self, ):
+        if not self.include_bursts:
+            return None
+        else:
+            pass
+
         if self.response_fr < self.baseline_fr:
             burst_multiplier_response = 0
         elif np.isclose(self.response_fr, self.baseline_fr, atol=0.01):

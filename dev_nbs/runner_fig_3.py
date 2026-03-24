@@ -4,16 +4,21 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from response_stats.pipeline import SimulationConfig, ResponseSimulator, _force_matlab_cell_structure, _parse_save_by_language, _as_cell_of_scalars, _as_numeric_vector, _is_sequence, _as_cell_of_vectors
-from response_stats.generators import PoissonSpikeGenerator
+from response_generator.pipeline import SimulationConfig, ResponseSimulator, _force_matlab_cell_structure, _parse_save_by_language, _as_cell_of_scalars, _as_numeric_vector, _is_sequence, _as_cell_of_vectors
+from response_generator.generators import PoissonSpikeGenerator
 
-from response_stats.plot_utils import *
+from response_generator.plot_utils import *
 
 
 from scipy.ndimage import gaussian_filter
 
-baseline_frs = np.arange(0.1, 15.1, 0.2)
-response_frs = np.arange(0.1, 50, 0.2)
+## previous version, as of 23. march 2026
+# baseline_frs = np.arange(0.1, 15.1, 0.2)
+# response_frs = np.arange(0.1, 50, 0.2)
+
+## new set - 23 march 2026
+baseline_frs = np.arange(0.1, 50., 0.5)
+response_frs = np.arange(0.1, 50., 0.5)
 
 fr_pairs = np.array([[b, r] for b in baseline_frs for r in response_frs])
 n_samples = len(fr_pairs)
@@ -25,7 +30,7 @@ fr_response = fr_pairs[:,1]
 burst_rate_baseline_all = np.ones(n_samples) * 0.5
 burst_rate_response_all = np.ones(n_samples) * 15
 
-save_dir = Path("/media/al/darch/response_stats/datasets/uniform_sampling_incl_negative_bursts")
+save_dir = Path("/media/al/darch/response_stats/datasets/uniform_sampling_incl_negative_bursts_extended")
 
 trial_ranges = [
     [100, 500],
@@ -91,14 +96,14 @@ for trial_range in trial_ranges:
     seed=73,
 
     # =========================
-    # Baseline firing rate
+    # Baseline firing rate   -- not used here
     # =========================
     baseline_threshold=False,
     baseline_scale=False,
     baseline_range=[0, 15],
 
     # =========================
-    # Peak response firing rate
+    # Peak response firing rate -- not used here
     # =========================
     response_fr_sampler="uniform",
     response_fr_method="linear_function",
@@ -106,7 +111,7 @@ for trial_range in trial_ranges:
     response_fr_max=60,
 
     # =========================
-    # Gain response function
+    # Gain response function -- not used here
     # =========================
     gain_response_fixed=False,
     gain_response_y=False,
@@ -114,7 +119,7 @@ for trial_range in trial_ranges:
     gain_response_e=False,
 
     # =========================
-    # Linear response function
+    # Linear response function  -- not used here
     # =========================
     linear_response_slope=1,
     linear_response_offset=0,

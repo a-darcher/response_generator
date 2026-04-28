@@ -5,7 +5,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from response_generator.generators import PoissonSpikeGenerator
+from src.response_generator.generators import PoissonSpikeGenerator
 
 
 def fig_to_base64_png(fig) -> str:

@@ -20,7 +20,11 @@ html_theme = "furo"
 
 # AutoAPI config
 autoapi_type = "python"
-autoapi_dirs = ["../src/response_generator"]
+autoapi_dirs = ["../src"]
+
+autoapi_python_use_implicit_namespaces = True
+autoapi_mapper_config = {"use_module_imported_members": False}
+
 autoapi_root = "autoapi"
 autoapi_keep_files = True
 

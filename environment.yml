@@ -1,86 +1,88 @@
-name: responsegen
+name: dataset
 channels:
   - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=5.1
-  - aom=3.6.0
   - asttokens=3.0.0
   - blas=1.0
+  - blosc=1.21.3
   - bottleneck=1.4.2
-  - brotli-python=1.0.9
+  - brotli=1.0.9
+  - brotli-bin=1.0.9
   - bzip2=1.0.8
   - c-ares=1.19.1
+  - c-blosc2=2.12.0
   - ca-certificates=2025.7.15
-  - cairo=1.16.0
-  - comm=0.2.3
+  - comm=0.2.2
   - contourpy=1.3.1
   - cycler=0.11.0
   - cyrus-sasl=2.1.28
-  - dav1d=1.2.1
+  - dbus=1.13.18
   - debugpy=1.8.11
-  - decorator=5.2.1
-  - exceptiongroup=1.3.0
-  - executing=2.2.0
-  - expat=2.7.1
+  - decorator=5.1.1
+  - exceptiongroup=1.2.2
+  - executing=2.1.0
+  - expat=2.6.4
   - fontconfig=2.14.1
-  - fonttools=4.55.3
-  - freetype=2.13.3
-  - fribidi=1.0.10
-  - graphite2=1.3.14
-  - harfbuzz=10.2.0
+  - fonttools=4.51.0
+  - freetype=2.12.1
+  - glib=2.78.4
+  - glib-tools=2.78.4
+  - gst-plugins-base=1.14.1
+  - gstreamer=1.14.1
+  - hdf5=1.14.5
   - icu=73.1
-  - importlib-metadata=8.7.0
+  - importlib-metadata=8.5.0
+  - iniconfig=1.1.1
   - intel-openmp=2023.1.0
-  - ipykernel=6.30.1
-  - ipython=9.4.0
-  - ipython_pygments_lexers=1.1.1
+  - ipykernel=6.29.5
+  - ipython=8.31.0
   - jedi=0.19.2
   - jpeg=9e
   - jupyter_client=8.6.3
-  - jupyter_core=5.8.1
-  - kiwisolver=1.4.8
+  - jupyter_core=5.7.2
+  - kiwisolver=1.4.4
   - krb5=1.20.1
   - lcms2=2.16
   - ld_impl_linux-64=2.40
   - lerc=4.0.0
-  - libabseil=20250127.0
-  - libavif=1.1.1
+  - libabseil=20240116.2
+  - libbrotlicommon=1.0.9
+  - libbrotlidec=1.0.9
+  - libbrotlienc=1.0.9
+  - libclang=14.0.6
+  - libclang13=14.0.6
   - libcups=2.4.2
-  - libcurl=8.14.1
+  - libcurl=8.11.1
   - libdeflate=1.22
   - libedit=3.1.20230828
   - libev=4.33
-  - libevent=2.1.12
   - libffi=3.4.4
   - libgcc-ng=11.2.0
   - libgfortran-ng=11.2.0
   - libgfortran5=11.2.0
-  - libgl=1.7.0
-  - libglib=2.84.2
-  - libglvnd=1.7.0
-  - libglx=1.7.0
+  - libglib=2.78.4
   - libgomp=11.2.0
   - libiconv=1.16
-  - libkrb5=1.21.3
+  - libllvm14=14.0.6
   - libmpdec=4.0.0
   - libnghttp2=1.57.0
   - libpng=1.6.39
-  - libpq=17.4
-  - libprotobuf=5.29.3
+  - libpq=17.2
+  - libprotobuf=4.25.3
   - libsodium=1.0.18
   - libssh2=1.11.1
   - libstdcxx-ng=11.2.0
-  - libtiff=4.7.0
+  - libtiff=4.5.1
   - libuuid=1.41.5
   - libwebp-base=1.3.2
-  - libxcb=1.17.0
-  - libxkbcommon=1.9.1
-  - libxml2=2.13.8
-  - llvmlite=0.44.0
-  - lmdb=0.9.31
+  - libxcb=1.15
+  - libxkbcommon=1.0.1
+  - libxml2=2.13.5
   - lz4-c=1.9.4
+  - lzo=2.10
   - matplotlib=3.10.0
   - matplotlib-base=3.10.0
   - matplotlib-inline=0.1.7
@@ -89,77 +91,212 @@ dependencies:
   - mkl_fft=1.3.11
   - mkl_random=1.2.8
   - mysql=8.4.0
-  - ncurses=6.5
+  - ncurses=6.4
   - nest-asyncio=1.6.0
-  - numba=0.61.2
-  - numexpr=2.11.0
-  - numpy=2.1.3
-  - numpy-base=2.1.3
+  - numexpr=2.10.1
+  - numpy-base=2.2.2
   - openjpeg=2.5.2
-  - openldap=2.6.10
+  - openldap=2.6.4
   - openssl=3.0.17
-  - packaging=25.0
-  - pandas=2.3.1
+  - packaging=24.2
   - parso=0.8.4
   - pcre2=10.42
   - pexpect=4.9.0
   - pickleshare=0.7.5
-  - pillow=11.3.0
-  - pip=25.1
-  - pixman=0.46.4
-  - platformdirs=4.3.8
-  - prompt-toolkit=3.0.51
+  - pillow=11.0.0
+  - pip=24.2
+  - platformdirs=4.3.6
+  - pluggy=1.5.0
+  - ply=3.11
+  - prompt-toolkit=3.0.48
   - psutil=5.9.0
-  - pthread-stubs=0.3
   - ptyprocess=0.7.0
   - pure_eval=0.2.3
-  - pygments=2.19.2
+  - py-cpuinfo=9.0.0
+  - pygments=2.19.1
   - pyparsing=3.2.0
-  - pyqt=6.7.1
-  - pyqt6-sip=13.9.1
-  - python=3.13.5
-  - python-dateutil=2.9.0post0
+  - pyqt=5.15.10
+  - pyqt5-sip=12.13.0
+  - pytables=3.10.2
+  - pytest=8.3.4
+  - python=3.13.1
+  - python-dateutil=2.9.0.post0
   - python-tzdata=2025.2
   - python_abi=3.13
-  - pytz=2025.2
   - pyzmq=26.2.0
-  - qtbase=6.7.3
-  - qtdeclarative=6.7.3
-  - qtsvg=6.7.3
-  - qttools=6.7.3
-  - qtwebchannel=6.7.3
-  - qtwebsockets=6.7.3
-  - readline=8.3
-  - scipy=1.16.0
+  - qt-main=5.15.2
+  - readline=8.2
   - seaborn=0.13.2
   - setuptools=72.1.0
-  - sip=6.10.0
+  - sip=6.7.12
   - six=1.17.0
-  - sqlite=3.50.2
+  - sqlite=3.45.3
   - stack_data=0.6.3
+  - tabulate=0.9.0
   - tbb=2021.8.0
-  - tk=8.6.15
-  - tornado=6.5.1
-  - tqdm=4.67.1
+  - tk=8.6.14
+  - tornado=6.4.2
   - traitlets=5.14.3
-  - typing_extensions=4.14.1
-  - tzdata=2025b
+  - typing-extensions=4.12.2
+  - typing_extensions=4.12.2
   - wcwidth=0.2.13
-  - wheel=0.45.1
-  - xcb-util=0.4.1
-  - xcb-util-cursor=0.1.5
-  - xcb-util-image=0.4.0
-  - xcb-util-renderutil=0.3.10
-  - xkeyboard-config=2.44
-  - xorg-libx11=1.8.12
-  - xorg-libxau=1.0.12
-  - xorg-libxdmcp=1.1.5
-  - xorg-libxext=1.3.6
-  - xorg-libxrender=0.9.12
-  - xorg-xorgproto=2024.1
-  - xz=5.6.4
+  - wheel=0.44.0
+  - xz=5.4.6
   - zeromq=4.3.5
-  - zipp=3.23.0
+  - zipp=3.21.0
   - zlib=1.2.13
+  - zlib-ng=2.0.7
   - zstd=1.5.6
-prefix: /home/al/miniconda3/envs/responsegen
+  - pip:
+    - accessible-pygments==0.0.5
+    - aiobotocore==2.17.0
+    - aiohappyeyeballs==2.4.4
+    - aiohttp==3.11.11
+    - aioitertools==0.12.0
+    - aiosignal==1.3.2
+    - alabaster==1.0.0
+    - annotated-doc==0.0.4
+    - annotated-types==0.7.0
+    - anyio==4.12.1
+    - appdirs==1.4.4
+    - argon2-cffi==23.1.0
+    - argon2-cffi-bindings==21.2.0
+    - arrow==1.3.0
+    - asciitree==0.3.3
+    - astroid==4.1.1
+    - attrs==24.3.0
+    - babel==2.18.0
+    - beautifulsoup4==4.14.3
+    - bidsschematools==0.7.2
+    - blessed==1.20.0
+    - blinker==1.9.0
+    - botocore==1.35.93
+    - certifi==2024.12.14
+    - cffi==1.17.1
+    - charset-normalizer==3.4.1
+    - ci-info==0.3.0
+    - click==8.1.8
+    - click-didyoumean==0.3.1
+    - cryptography==44.0.0
+    - dandi==0.66.3
+    - dandischema==0.10.4
+    - datajoint==0.14.3
+    - dnspython==2.7.0
+    - docstring-parser==0.16
+    - docutils==0.22.4
+    - elephant==1.1.1
+    - email-validator==2.2.0
+    - etelemetry==0.3.1
+    - faker==36.1.1
+    - fastapi==0.135.1
+    - fasteners==0.19
+    - flask==3.1.0
+    - fqdn==1.5.1
+    - frozenlist==1.5.0
+    - fscacher==0.4.4
+    - fsspec==2024.12.0
+    - furo==2025.12.19
+    - h11==0.16.0
+    - h5py==3.12.1
+    - hdmf==3.14.6
+    - hdmf-zarr==0.9.0
+    - httptools==0.7.1
+    - humanize==4.11.0
+    - idna==3.10
+    - imagesize==2.0.0
+    - interleave==0.2.2
+    - isodate==0.7.2
+    - isoduration==20.11.0
+    - itsdangerous==2.2.0
+    - jaraco-classes==3.4.0
+    - jaraco-context==6.0.1
+    - jaraco-functools==4.1.0
+    - jeepney==0.8.0
+    - jinja2==3.1.5
+    - jmespath==1.0.1
+    - joblib==1.4.2
+    - jsonpointer==3.0.0
+    - jsonschema==4.23.0
+    - jsonschema-specifications==2024.10.1
+    - keyring==25.6.0
+    - keyrings-alt==5.0.2
+    - lxml==6.0.1
+    - markupsafe==3.0.2
+    - mat73==0.65
+    - minio==7.2.15
+    - more-itertools==10.5.0
+    - multidict==6.1.0
+    - natsort==8.4.0
+    - neo==0.13.3
+    - networkx==3.4.2
+    - neuroconv==0.6.6
+    - nibabel==5.3.2
+    - nilearn==0.12.1
+    - numcodecs==0.13.1
+    - numpy==1.26.4
+    - nwbinspector==0.6.1
+    - otumat==0.3.1
+    - pandas==2.2.3
+    - parse==1.20.2
+    - probeinterface==0.2.24
+    - propcache==0.2.1
+    - pycparser==2.22
+    - pycryptodome==3.21.0
+    - pycryptodomex==3.21.0
+    - pydantic==2.10.5
+    - pydantic-core==2.27.2
+    - pydot==3.0.4
+    - pymysql==1.1.1
+    - pynwb==2.8.3
+    - pyout==0.8.0
+    - python-dotenv==1.2.2
+    - python-multipart==0.0.22
+    - pytz==2024.2
+    - pyyaml==6.0.2
+    - quantities==0.15.0
+    - referencing==0.35.1
+    - requests==2.32.3
+    - response-generator==0.0.1
+    - rfc3339-validator==0.1.4
+    - rfc3987==1.3.8
+    - roman-numerals==4.1.0
+    - rpds-py==0.22.3
+    - ruamel-yaml==0.18.10
+    - s3fs==2024.12.0
+    - scikit-learn==1.7.1
+    - scipy==1.15.0
+    - secretstorage==3.3.3
+    - semantic-version==2.10.0
+    - snowballstemmer==3.0.1
+    - soupsieve==2.8.3
+    - sphinx==9.1.0
+    - sphinx-autoapi==3.8.0
+    - sphinx-basic-ng==1.0.0b2
+    - sphinxcontrib-applehelp==2.0.0
+    - sphinxcontrib-devhelp==2.0.0
+    - sphinxcontrib-htmlhelp==2.1.0
+    - sphinxcontrib-jsmath==1.0.1
+    - sphinxcontrib-qthelp==2.0.0
+    - sphinxcontrib-serializinghtml==2.0.0
+    - spikeinterface==0.101.2
+    - starlette==0.52.1
+    - tenacity==9.0.0
+    - threadpoolctl==3.5.0
+    - tqdm==4.67.1
+    - types-python-dateutil==2.9.0.20241206
+    - typing-inspection==0.4.2
+    - tzdata==2024.2
+    - uri-template==1.3.0
+    - urllib3==2.3.0
+    - uvicorn==0.41.0
+    - uvloop==0.22.1
+    - watchdog==6.0.0
+    - watchfiles==1.1.1
+    - webcolors==24.11.1
+    - websockets==16.0
+    - werkzeug==3.1.3
+    - wrapt==1.17.0
+    - yarl==1.18.3
+    - zarr==2.17.2
+    - zarr-checksum==0.4.2
+prefix: /home/al/miniconda3/envs/dataset

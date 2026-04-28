@@ -1,6 +1,7 @@
 {
   "name": "response-generator-docs",
   "private": true,
+  "deploy": "docusaurus deploy",
   "scripts": {
     "prestart": "bash ../scripts/build_api_docs.sh",
     "start": "docusaurus start",

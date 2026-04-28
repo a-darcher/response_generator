@@ -27,10 +27,10 @@ from scipy.io import savemat
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from response_generator.config import default_seed
-from response_generator.config_plot import *
-from response_generator.matlab_io import *
-from response_generator.generators import PoissonSpikeGenerator
+from .config import default_seed
+from .config_plot import *
+from .matlab_io import *
+from .generators import PoissonSpikeGenerator
 
 Sampler = Literal["uniform", "exponential"]
 ResponseMethod = Literal["linear_function", "gain_function", "threshold"]

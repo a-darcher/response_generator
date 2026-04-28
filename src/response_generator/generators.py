@@ -46,7 +46,7 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 import numpy as np
 from scipy.stats import beta
 
-from response_generator.config import default_seed
+from .config import default_seed
 
 class PoissonSpikeGenerator:
     def __init__(self, baseline_fr, response_fr, 

@@ -1,0 +1,23 @@
+{
+  "id": "config",
+  "title": "config",
+  "description": "",
+  "source": "@site/docs/config.md",
+  "sourceDirName": ".",
+  "slug": "/config",
+  "permalink": "/response_generator/docs/config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "getting-started",
+    "permalink": "/response_generator/docs/getting-started"
+  },
+  "next": {
+    "title": "pipeline",
+    "permalink": "/response_generator/docs/pipeline"
+  }
+}

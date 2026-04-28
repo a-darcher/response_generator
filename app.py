@@ -1,10 +1,3 @@
-import sys
-import os
-
-# Manually add the project root to the python path
-root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
 
 
 from fastapi import FastAPI, HTTPException
@@ -12,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import numpy as np
 
-from .preview import generate_preview
+from preview import generate_preview
 
 app = FastAPI()
 

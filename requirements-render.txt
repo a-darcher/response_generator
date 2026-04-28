@@ -1,7 +1,7 @@
 fastapi==0.135.1
 uvicorn[standard]==0.30.6
 numpy==1.26.4
-matplotlib==3.8.4
-scipy==1.13.1
+matplotlib>=3.9.0
+scipy>=1.14.0
 pillow==10.4.0
 pydantic==2.10.5

@@ -5,7 +5,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from response_generator.generators import PoissonSpikeGenerator
+from ..response_generator.generators import PoissonSpikeGenerator
 
 
 def fig_to_base64_png(fig) -> str:
@@ -108,7 +108,7 @@ def generate_preview(
     ax.spines['right'].set_visible(False)
     
 
-    
+
     image_base64 = fig_to_base64_png(fig)
 
     stats = {

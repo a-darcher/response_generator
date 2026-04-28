@@ -17,7 +17,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: bin_baseline(cfg: response_stats.responses.config.ResponseConfig) -> numpy.ndarray
+.. py:function:: bin_baseline(cfg: response_generator.responses.config.ResponseConfig) -> numpy.ndarray
 
    Treats the entire baseline period as a single bin
    and returns the spike count during this bin, scaled to Hz.
@@ -29,7 +29,7 @@ Module Contents
    :rtype: np.ndarray, shape (n_trials,)
 
 
-.. py:function:: bin_spikes(cfg: response_stats.responses.config.ResponseConfig)
+.. py:function:: bin_spikes(cfg: response_generator.responses.config.ResponseConfig)
 
    Bin spikes during the stimulus period.
    Can optionally interleave the bins by setting `interleave_response_bins` to True in the class initialization.
@@ -42,5 +42,5 @@ Module Contents
    :rtype: shape (n_trials, n_bins) spike counts (Hz).
 
 
-.. py:function:: make_response_data(cfg: response_stats.responses.config.ResponseConfig) -> response_stats.responses.config.ResponseData
+.. py:function:: make_response_data(cfg: response_generator.responses.config.ResponseConfig) -> response_generator.responses.config.ResponseData
 

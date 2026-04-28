@@ -40,6 +40,7 @@ class PreviewRequest(BaseModel):
     burst_beta: float = 2.0
     burst_multiplier: float = 2.0
     n_trials: int = 100
+    debug: bool = False
 
 import traceback
 
@@ -67,6 +68,7 @@ def preview(req: PreviewRequest):
             burst_beta=req.burst_beta,
             burst_multiplier=req.burst_multiplier,
             n_trials=req.n_trials,
+            debug=req.debug,
         )
     except Exception as exc:
         traceback.print_exc()

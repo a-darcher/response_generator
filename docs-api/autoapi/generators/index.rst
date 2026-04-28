@@ -57,7 +57,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: PoissonSpikeGenerator(baseline_fr, response_fr, latency, duration, dt, baseline_T, stimulus_T, induce_refractory_period=False, kappa=4, a=None, b=None, include_bursts=None, burst_rate_baseline=None, burst_rate_factor=None, burst_rate_response=None, burst_response_time_factor=None, burst_duration_lam=None, burst_alpha=None, burst_beta=None, burst_multiplier=None, rng=None)
+.. py:class:: PoissonSpikeGenerator(baseline_fr, response_fr, latency, duration, dt, baseline_T, stimulus_T, induce_refractory_period=False, kappa=4, a=None, b=None, include_bursts=None, burst_rate_baseline=None, burst_rate_factor=None, burst_rate_response=None, burst_response_time_factor=None, burst_duration_lam=None, burst_alpha=None, burst_beta=None, burst_multiplier=None, rng=None, debug=None)
 
    .. py:attribute:: baseline_fr
 
@@ -149,7 +149,7 @@ Module Contents
 
 
    .. py:attribute:: burst_multiplier_response
-      :value: 0
+      :value: None
 
 
 

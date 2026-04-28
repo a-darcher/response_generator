@@ -78,7 +78,7 @@ Module Contents
       :type:  TestKind
 
 
-   .. py:method:: compute_pvalues(data: response_stats.responses.config.ResponseData) -> numpy.ndarray
+   .. py:method:: compute_pvalues(data: response_generator.responses.config.ResponseData) -> numpy.ndarray
       :abstractmethod:
 
 

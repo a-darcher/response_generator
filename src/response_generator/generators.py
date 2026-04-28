@@ -62,7 +62,9 @@ class PoissonSpikeGenerator:
                  burst_alpha=None, burst_beta=None, 
                  burst_multiplier=None,
                  #
-                 rng=None):
+                 rng=None,
+                 #
+                 debug=None,):
         
         self.baseline_fr = baseline_fr
         self.response_fr = response_fr
@@ -101,6 +103,12 @@ class PoissonSpikeGenerator:
             self.rng = np.random.default_rng(default_seed)
         else:
             self.rng = rng
+
+        if debug:
+            self.debug = True
+            self.burst_r_t_collection = []
+        else:
+            self.debug = False
 
     def _force_renewal_process(self, spike_train):
         """
@@ -175,7 +183,7 @@ class PoissonSpikeGenerator:
         elif np.isclose(self.response_fr, self.baseline_fr, atol=0.01):
             burst_rate_response = self.burst_rate_baseline
         else:
-            burst_rate_response = burst_rate_response + (self.burst_rate_factor * self.response_fr)
+            burst_rate_response = burst_rate_response + (self.burst_rate_factor * self.response_fr) # R_r = r + 0.25FR_r 
 
         return burst_rate_response
     
@@ -365,6 +373,8 @@ class PoissonSpikeGenerator:
                 T_off = (self.baseline_T + self.stimulus_T)
                 r_t = self.induce_bursts(r_t, T_on, T_off, self.burst_rate_baseline, trial_section="baseline")
                 
+            if self.debug:
+                self.burst_r_t_collection.append(r_t)
 
             p = r_t * dt 
             u = self.rng.random(self.total_bins) 

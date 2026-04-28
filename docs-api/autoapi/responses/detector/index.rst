@@ -15,7 +15,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ResponseDetector(data: response_stats.responses.config.ResponseData, test_cls: type[response_stats.responses.response_tests.ResponseTest], **test_kwargs)
+.. py:class:: ResponseDetector(data: response_generator.responses.config.ResponseData, test_cls: type[response_generator.responses.response_tests.ResponseTest], **test_kwargs)
 
    .. py:attribute:: data
 

@@ -12,6 +12,39 @@ const API_BASE =
     ? 'http://127.0.0.1:8000'
     : 'https://YOUR-BACKEND-URL';
 
+function NumberInput({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div style={{marginBottom: '1rem'}}>
+      <label style={{display: 'block', marginBottom: 8, fontWeight: 600}}>
+        {label}
+      </label>
+      <input
+        type="number"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{width: '100%', padding: 6}}
+      />
+    </div>
+  );
+}
+
 function Slider({
   label,
   value,
@@ -201,7 +234,16 @@ export default function PreviewPlayground(): JSX.Element {
           padding: '1rem',
         }}
       >
-        <h2>Controls</h2>
+        <h2>Inputs</h2>
+
+        <NumberInput
+          label="Number of trials"
+          value={nTrials}
+          min={1}
+          max={500}
+          step={1}
+          onChange={setNTrials}
+        />
 
         <Slider
           label="Baseline firing rate"
@@ -257,31 +299,22 @@ export default function PreviewPlayground(): JSX.Element {
           onChange={setStimulusT}
         />
 
-        <Slider
+        {/* <Slider
           label="dt (s)"
           value={dt}
           min={0.0005}
           max={0.02}
           step={0.0005}
           onChange={setDt}
-        />
+        /> */}
 
-        <Slider
+        <NumberInput
           label="Seed"
           value={seed}
           min={0}
           max={1000}
           step={1}
           onChange={setSeed}
-        />
-
-        <Slider
-          label="Number of trials"
-          value={nTrials}
-          min={1}
-          max={500}
-          step={1}
-          onChange={setNTrials}
         />
 
         <Checkbox
@@ -397,7 +430,7 @@ export default function PreviewPlayground(): JSX.Element {
           padding: '1rem',
         }}
       >
-        <h2>Preview</h2>
+        <h2>Generated Response</h2>
 
         {loading && <p>Updating preview…</p>}
 
@@ -421,10 +454,10 @@ export default function PreviewPlayground(): JSX.Element {
               <p>No image returned.</p>
             )}
 
-            <h3 style={{marginTop: '1rem'}}>Stats</h3>
+            {/* <h3 style={{marginTop: '1rem'}}>Stats</h3>
             <pre style={{overflowX: 'auto'}}>
               {JSON.stringify(result.stats, null, 2)}
-            </pre>
+            </pre> */}
 
             {result.warnings.length > 0 && (
               <>

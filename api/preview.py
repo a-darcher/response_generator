@@ -38,6 +38,7 @@ def generate_preview(
     burst_beta: float,
     burst_multiplier: float,
     n_trials: int,
+    debug: bool,
 ) -> dict[str, Any]:
     """
     Run the real spike generator and return a JSON-safe preview.
@@ -68,18 +69,46 @@ def generate_preview(
         burst_alpha=burst_alpha,
         burst_beta=burst_beta,
         burst_multiplier=burst_multiplier,
+        debug=debug,
     )
 
-    trial_activity = generator.generate(n_trials)
+    trial_activity = [trial - baseline_T for trial in generator.generate(n_trials)]
 
+    fig, axes = plt.subplots(2, 1, figsize=(8, 10), 
+  
+                            height_ratios=[2, 1])
 
-    fig, ax = plt.subplots(figsize=(7, 4))
-
+    # raster asset
+    ax = axes[0]
     ax.eventplot(trial_activity,)
-    ax.set_title("Generated Trial Activity")
-    ax.set_xlabel("Time bin")
-    ax.set_ylabel("Trial")
+    ax.vlines(0, ymin=-0.5, ymax=n_trials - 0.5, color="darkgoldenrod", linestyle="--", label="Stimulus onset")
+    ax.set_title("")
+    ax.set_xlabel("Time [s]\nsimulated stimulus onset at t = 0")
+    ax.set_ylabel("Trials")
 
+    ax.set_yticks([])
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+    # rate function asset
+    ax = axes[1]
+    x = np.linspace(-baseline_T, stimulus_T, int((baseline_T + stimulus_T) / dt))
+    ax.plot(x, generator.r_t)
+    ax.hlines(y=baseline_fr, xmin=-baseline_T, xmax=stimulus_T, color="olive", linestyle="--", alpha=0.5, label="Baseline firing rate")
+    ax.vlines(0, ymin=baseline_fr, ymax=response_fr, color="darkgoldenrod", linestyle="--", label="Stimulus onset")
+
+    ax.legend(frameon=False)
+
+    ax.set_xlabel("Time [s]\nsimulated stimulus onset at t = 0")
+    ax.set_ylabel("Rate Function [Hz]")
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
+
+    
     image_base64 = fig_to_base64_png(fig)
 
     stats = {

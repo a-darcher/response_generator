@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkresponse_generator_docs=self.webpackChunkresponse_generator_docs||[]).push([[103],{238(e,n,r){r.r(n),r.d(n,{default:()=>o});var c=r(6540),s=r(6025),t=r(4848);function o(){var e=(0,s.Ay)("/api-ref/index.html");return(0,c.useEffect)(function(){window.location.replace(e)},[e]),(0,t.jsx)("p",{children:"Redirecting to API Reference\u2026"})}}}]);

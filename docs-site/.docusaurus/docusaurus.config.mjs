@@ -50,7 +50,7 @@ export default {
       "items": [
         {
           "to": "/",
-          "label": "Demos",
+          "label": "Demo",
           "position": "left"
         },
         {

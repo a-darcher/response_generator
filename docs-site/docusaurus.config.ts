@@ -38,7 +38,7 @@ const config: Config = {
     navbar: {
       title: 'Response Generator',
       items: [
-        {to: '/', label: 'Demos', position: 'left'},
+        {to: '/', label: 'Demo', position: 'left'},
         {to: '/docs/intro', label: 'Docs', position: 'left'},
         {
           href: 'https://github.com/a-darcher/response_generator',

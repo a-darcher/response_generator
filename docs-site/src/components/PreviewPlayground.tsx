@@ -128,6 +128,7 @@ export default function PreviewPlayground(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PreviewResponse | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -179,7 +180,35 @@ export default function PreviewPlayground(): JSX.Element {
     ]
   );
 
+  const validationErrorsMemo = useMemo(() => {
+    const errs: string[] = [];
+    const epsilon = 1e-9;
+
+    if (duration + latency > stimulusT + epsilon) {
+      errs.push("Duration exceeds latency + stimulus window");
+    }
+
+    if (latency > stimulusT + epsilon) {
+    errs.push("Latency cannot exceed stimulus window.");
+  }
+
+
+
+    return errs;
+  }, [duration, latency, stimulusT]);
+
   useEffect(() => {
+    setValidationErrors(validationErrorsMemo);
+  }, [validationErrorsMemo]);
+
+  useEffect(() => {
+    if (validationErrorsMemo.length > 0) {
+      setLoading(false);
+      setResult(null);
+      setError('Invalid parameter combination.');
+      return;
+    }
+
     const timeoutId = window.setTimeout(async () => {
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -216,7 +245,7 @@ export default function PreviewPlayground(): JSX.Element {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [payload]);
+  }, [payload, validationErrorsMemo]);
 
   return (
     <div
@@ -225,6 +254,8 @@ export default function PreviewPlayground(): JSX.Element {
         gridTemplateColumns: '380px 1fr',
         gap: '2rem',
         alignItems: 'start',
+        height: '90vh',
+        overflow: 'hidden',
       }}
     >
       <section
@@ -232,6 +263,10 @@ export default function PreviewPlayground(): JSX.Element {
           border: '1px solid #ddd',
           borderRadius: 12,
           padding: '1rem',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          position: 'sticky',
+          top: '1rem',
         }}
       >
         <h2>Inputs</h2>
@@ -428,11 +463,15 @@ export default function PreviewPlayground(): JSX.Element {
           border: '1px solid #ddd',
           borderRadius: 12,
           padding: '1rem',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          position: 'sticky',
+          top: '1rem',
         }}
       >
         <h2>Generated Response</h2>
 
-        {loading && <p>Updating preview…</p>}
+        {loading && <p>updating…</p>}
 
         {error && (
           <div style={{padding: '1rem', border: '1px solid #c33'}}>
@@ -440,7 +479,18 @@ export default function PreviewPlayground(): JSX.Element {
           </div>
         )}
 
-        {!error && !result && !loading && <p>Adjust sliders to see output.</p>}
+        {validationErrors.length > 0 && (
+          <div style={{padding: '1rem', border: '1px solid #f90', backgroundColor: '#ffe'}}>
+            <h3>Validation Warnings</h3>
+            <ul>
+              {validationErrors.map((err, i) => (
+                <li key={i}>{err}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {!error && !result && !loading && validationErrors.length === 0 && <p>Adjust sliders to see output.</p>}
 
         {result && (
           <>

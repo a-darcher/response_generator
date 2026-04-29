@@ -2,8 +2,8 @@ import os
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+# from fastapi.staticfiles import StaticFiles
+# from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import numpy as np
 
@@ -11,20 +11,21 @@ from preview import generate_preview
 
 app = FastAPI()
 
-frontend_path = os.path.join(os.getcwd(), "docs-site", "build")
-if os.path.exists(os.path.join(frontend_path, "assets")):
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+# frontend_path = os.path.join(os.getcwd(), "docs-site", "build")
+# if os.path.exists(os.path.join(frontend_path, "assets")):
+#     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
 
-@app.get("/")
-async def serve_index():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+# @app.get("/")
+# async def serve_index():
+#     return FileResponse(os.path.join(frontend_path, "index.html"))
 
-@app.get("/{rest_of_path:path}")
-async def serve_everything_else(rest_of_path: str):
-    file_path = os.path.join(frontend_path, rest_of_path)
-    if os.path.isfile(file_path):
-        return FileResponse(file_path)
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+# @app.get("/{rest_of_path:path}")
+# async def serve_everything_else(rest_of_path: str):
+#     file_path = os.path.join(frontend_path, rest_of_path)
+#     if os.path.isfile(file_path):
+#         return FileResponse(file_path)
+#     return FileResponse(os.path.join(frontend_path, "index.html"))
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,10 +34,10 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "https://a-darcher.github.io",
     ],
-    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 class PreviewRequest(BaseModel):
     baseline_fr: float = 5.0

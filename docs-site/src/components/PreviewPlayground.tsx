@@ -10,7 +10,7 @@ type PreviewResponse = {
 const API_BASE =
   process.env.NODE_ENV === 'development'
     ? 'http://127.0.0.1:8000'
-    : 'https://YOUR-BACKEND-URL';
+    : 'https://response-generator.onrender.com';
 
 function NumberInput({
   label,

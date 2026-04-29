@@ -1,19 +1,12 @@
-response_stats.egg-info/dependency_links.txt
-response_stats.egg-info/PKG-INFO
-response_stats.egg-info/SOURCES.txt
-response_stats.egg-info/top_level.txt
-
-dev_nbs/plots*
-dev_nbs/data/*
-
+# -----------------------------
 # Python
+# -----------------------------
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 *.so
-*.egg-info/
+*.pyd
 *.egg
+*.egg-info/
 dist/
 build/
 
@@ -22,29 +15,38 @@ venv/
 .venv/
 env/
 
-# Sphinx build output
-docs-api/_build/
-docs-site/static/api-ref/
-docs-api/autoapi/
+# -----------------------------
+# Notebooks / dev data
+# -----------------------------
+dev_nbs/plots*
+dev_nbs/data/*
 
-# Node
-node_modules/
-npm-debug.log*
-package-lock.json
-
-# Docusaurus
-docs-site/build/
-docs-site/.docusaurus/
-docs-site/.cache/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# VSCode
-.vscode/
-
+# -----------------------------
+# Environment files
+# -----------------------------
 .env
 .env.local
 
+# -----------------------------
+# Sphinx (API docs)
+# -----------------------------
+docs-api/_build/
+docs-api/autoapi/
 
+# -----------------------------
+# Node / Docusaurus
+# -----------------------------
+node_modules/
+npm-debug.log*
+
+# Docusaurus internal cache (never commit)
+docs-site/.docusaurus/
+docs-site/.cache/
+
+
+# -----------------------------
+# OS / Editor
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/

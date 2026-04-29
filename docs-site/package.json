@@ -5,7 +5,6 @@
   "scripts": {
     "prestart": "bash ../scripts/build_api_docs.sh",
     "start": "docusaurus start",
-    "prebuild": "bash ../scripts/build_api_docs.sh",
     "build": "docusaurus build",
     "serve": "docusaurus serve"
   },

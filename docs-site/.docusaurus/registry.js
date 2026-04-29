@@ -11,5 +11,4 @@ export default {
   "a7bd4aaa": [() => import(/* webpackChunkName: "a7bd4aaa" */ "@theme/DocVersionRoot"), "@theme/DocVersionRoot", require.resolveWeak("@theme/DocVersionRoot")],
   "a94703ab": [() => import(/* webpackChunkName: "a94703ab" */ "@theme/DocRoot"), "@theme/DocRoot", require.resolveWeak("@theme/DocRoot")],
   "aba21aa0": [() => import(/* webpackChunkName: "aba21aa0" */ "@generated/docusaurus-plugin-content-docs/default/__plugin.json"), "@generated/docusaurus-plugin-content-docs/default/__plugin.json", require.resolveWeak("@generated/docusaurus-plugin-content-docs/default/__plugin.json")],
-  "c3074df3": [() => import(/* webpackChunkName: "c3074df3" */ "@site/src/pages/api-ref.tsx"), "@site/src/pages/api-ref.tsx", require.resolveWeak("@site/src/pages/api-ref.tsx")],
   "d589d3a7": [() => import(/* webpackChunkName: "d589d3a7" */ "@site/docs/getting-started.md"), "@site/docs/getting-started.md", require.resolveWeak("@site/docs/getting-started.md")],};

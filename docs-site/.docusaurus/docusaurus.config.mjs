@@ -59,11 +59,6 @@ export default {
           "position": "left"
         },
         {
-          "to": "/api-ref",
-          "label": "API Reference",
-          "position": "left"
-        },
-        {
           "href": "https://github.com/a-darcher/response_generator",
           "label": "GitHub",
           "position": "right"

@@ -3,11 +3,6 @@ import ComponentCreator from '@docusaurus/ComponentCreator';
 
 export default [
   {
-    path: '/response_generator/api-ref',
-    component: ComponentCreator('/response_generator/api-ref', '510'),
-    exact: true
-  },
-  {
     path: '/response_generator/docs',
     component: ComponentCreator('/response_generator/docs', 'ca1'),
     routes: [

@@ -40,12 +40,7 @@ const config: Config = {
       items: [
         {to: '/', label: 'Demos', position: 'left'},
         {to: '/docs/intro', label: 'Docs', position: 'left'},
-        {
-          href: '/api-ref/index.html', 
-          label: 'API Reference', 
-          position: 'left',
-          target: '_self', 
-        },
+        {to: '/api-ref', label: 'API Reference', position: 'left'},
         {
           href: 'https://github.com/a-darcher/response_generator',
           label: 'GitHub',

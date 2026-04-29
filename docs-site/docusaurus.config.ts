@@ -6,7 +6,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://a-darcher.github.io',
-  baseUrl: '/response_generator/',
+  baseUrl: '/',
 
   organizationName: 'a-darcher',
   projectName: 'response_generator',
@@ -40,7 +40,12 @@ const config: Config = {
       items: [
         {to: '/', label: 'Demos', position: 'left'},
         {to: '/docs/intro', label: 'Docs', position: 'left'},
-        {to: '/api-ref', label: 'API Reference', position: 'left'},
+        {
+          href: '/api-ref/index.html', 
+          label: 'API Reference', 
+          position: 'left',
+          target: '_self', 
+        },
         {
           href: 'https://github.com/a-darcher/response_generator',
           label: 'GitHub',

@@ -6,7 +6,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://a-darcher.github.io',
-  baseUrl: '/',
+  baseUrl: '/response_generator/',
 
   organizationName: 'a-darcher',
   projectName: 'response_generator',

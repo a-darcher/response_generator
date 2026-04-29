@@ -26,19 +26,19 @@ app = FastAPI()
 #         return FileResponse(file_path)
 #     return FileResponse(os.path.join(frontend_path, "index.html"))
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://a-darcher.github.io",
+        "https://alanadarcher.com",
+        "https://www.alanadarcher.com",
     ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 class PreviewRequest(BaseModel):
     baseline_fr: float = 5.0
     response_fr: float = 20.0

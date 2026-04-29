@@ -8,7 +8,7 @@ export default {
   "tagline": "Docs and interactive preview",
   "favicon": "img/favicon.ico",
   "url": "https://a-darcher.github.io",
-  "baseUrl": "/",
+  "baseUrl": "/response_generator/",
   "organizationName": "a-darcher",
   "projectName": "response_generator",
   "onBrokenLinks": "throw",

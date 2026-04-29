@@ -3,43 +3,43 @@ import ComponentCreator from '@docusaurus/ComponentCreator';
 
 export default [
   {
-    path: '/api-ref',
-    component: ComponentCreator('/api-ref', 'a5e'),
+    path: '/response_generator/api-ref',
+    component: ComponentCreator('/response_generator/api-ref', '510'),
     exact: true
   },
   {
-    path: '/docs',
-    component: ComponentCreator('/docs', '57a'),
+    path: '/response_generator/docs',
+    component: ComponentCreator('/response_generator/docs', 'ca1'),
     routes: [
       {
-        path: '/docs',
-        component: ComponentCreator('/docs', '230'),
+        path: '/response_generator/docs',
+        component: ComponentCreator('/response_generator/docs', 'c6f'),
         routes: [
           {
-            path: '/docs',
-            component: ComponentCreator('/docs', 'c0d'),
+            path: '/response_generator/docs',
+            component: ComponentCreator('/response_generator/docs', 'f3d'),
             routes: [
               {
-                path: '/docs/config',
-                component: ComponentCreator('/docs/config', '67f'),
+                path: '/response_generator/docs/config',
+                component: ComponentCreator('/response_generator/docs/config', '617'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
-                path: '/docs/getting-started',
-                component: ComponentCreator('/docs/getting-started', '2a1'),
+                path: '/response_generator/docs/getting-started',
+                component: ComponentCreator('/response_generator/docs/getting-started', '6d0'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
-                path: '/docs/intro',
-                component: ComponentCreator('/docs/intro', '61d'),
+                path: '/response_generator/docs/intro',
+                component: ComponentCreator('/response_generator/docs/intro', '1df'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
-                path: '/docs/pipeline',
-                component: ComponentCreator('/docs/pipeline', 'e29'),
+                path: '/response_generator/docs/pipeline',
+                component: ComponentCreator('/response_generator/docs/pipeline', '1b1'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               }
@@ -50,8 +50,8 @@ export default [
     ]
   },
   {
-    path: '/',
-    component: ComponentCreator('/', 'e5f'),
+    path: '/response_generator/',
+    component: ComponentCreator('/response_generator/', '5d6'),
     exact: true
   },
   {

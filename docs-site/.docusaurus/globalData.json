@@ -1,33 +1,33 @@
 {
   "docusaurus-plugin-content-docs": {
     "default": {
-      "path": "/docs",
+      "path": "/response_generator/docs",
       "versions": [
         {
           "name": "current",
           "label": "Next",
           "isLast": true,
-          "path": "/docs",
+          "path": "/response_generator/docs",
           "mainDocId": "intro",
           "docs": [
             {
               "id": "config",
-              "path": "/docs/config",
+              "path": "/response_generator/docs/config",
               "sidebar": "tutorialSidebar"
             },
             {
               "id": "getting-started",
-              "path": "/docs/getting-started",
+              "path": "/response_generator/docs/getting-started",
               "sidebar": "tutorialSidebar"
             },
             {
               "id": "intro",
-              "path": "/docs/intro",
+              "path": "/response_generator/docs/intro",
               "sidebar": "tutorialSidebar"
             },
             {
               "id": "pipeline",
-              "path": "/docs/pipeline",
+              "path": "/response_generator/docs/pipeline",
               "sidebar": "tutorialSidebar"
             }
           ],
@@ -35,7 +35,7 @@
           "sidebars": {
             "tutorialSidebar": {
               "link": {
-                "path": "/docs/intro",
+                "path": "/response_generator/docs/intro",
                 "label": "intro"
               }
             }

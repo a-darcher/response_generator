@@ -18,5 +18,8 @@
   },
   "devDependencies": {
     "typescript": "^5.5.4"
+  },
+  "overrides": {
+    "webpackbar": "^7.0.0"
   }
 }

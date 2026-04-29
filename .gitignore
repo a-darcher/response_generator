@@ -25,6 +25,7 @@ env/
 # Sphinx build output
 docs-api/_build/
 docs-site/static/api-ref/
+docs-api/autoapi/
 
 # Node
 node_modules/

@@ -50,3 +50,4 @@ docs-site/.cache/
 .DS_Store
 Thumbs.db
 .vscode/dev_nbs/
+*.egg-info/

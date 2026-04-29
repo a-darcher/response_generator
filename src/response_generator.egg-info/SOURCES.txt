@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-setup.py
-src/response_generator.egg-info/PKG-INFO
-src/response_generator.egg-info/SOURCES.txt
-src/response_generator.egg-info/dependency_links.txt
-src/response_generator.egg-info/top_level.txt

@@ -17,24 +17,24 @@ __pycache__/
 dist/
 build/
 
-# # virtual environments
-# venv/
-# .venv/
-# env/
+# virtual environments
+venv/
+.venv/
+env/
 
-# # Sphinx build output
-# docs-api/_build/
-# docs-site/static/api-ref/
+# Sphinx build output
+docs-api/_build/
+docs-site/static/api-ref/
 
-# # Node
-# node_modules/
-# npm-debug.log*
-# package-lock.json
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
 
-# # Docusaurus
-# docs-site/build/
-# docs-site/.docusaurus/
-# docs-site/.cache/
+# Docusaurus
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/.cache/
 
 # OS files
 .DS_Store
@@ -45,3 +45,5 @@ Thumbs.db
 
 .env
 .env.local
+
+

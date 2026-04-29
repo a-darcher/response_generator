@@ -7,4 +7,4 @@ This API reference is generated automatically from the docstrings in
 .. toctree::
    :maxdepth: 2
 
-   autoapi/index.html
+   autoapi/index

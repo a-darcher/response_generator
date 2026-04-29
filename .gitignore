@@ -18,8 +18,8 @@ env/
 # -----------------------------
 # Notebooks / dev data
 # -----------------------------
-dev_nbs/plots*
-dev_nbs/data/*
+dev_nbs/*
+
 
 # -----------------------------
 # Environment files

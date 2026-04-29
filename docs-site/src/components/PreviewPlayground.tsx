@@ -121,7 +121,7 @@ export default function PreviewPlayground(): JSX.Element {
   const [burstBeta, setBurstBeta] = useState(2.0);
   const [burstMultiplier, setBurstMultiplier] = useState(2.0);
 
-  const [useBetaShape, setUseBetaShape] = useState(false);
+  const [useBetaShape, setUseBetaShape] = useState(true);
   const [a, setA] = useState(2.0);
   const [b, setB] = useState(5.0);
 

@@ -391,7 +391,12 @@ export default function PreviewPlayground(): JSX.Element {
           onChange={setIncludeBursts}
         />
 
-        {includeBursts && (
+        {includeBursts && 
+        <p style={{fontStyle: 'italic', fontSize: '0.7rem', color: '#555'}}>
+          High burst rates can increase generation time. 
+        </p>
+        &&
+        (
           <>
             <Slider
               label="Burst rate baseline"

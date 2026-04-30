@@ -109,8 +109,8 @@ export default function PreviewPlayground(): JSX.Element {
   const [stimulusT, setStimulusT] = useState(1.0);
   const [dt, setDt] = useState(0.001);
   const [induceRefractoryPeriod, setInduceRefractoryPeriod] = useState(true);
-  const [seed, setSeed] = useState(42);
-  const [nTrials, setNTrials] = useState(100);
+  const [seed, setSeed] = useState(11);
+  const [nTrials, setNTrials] = useState(25);
 
   const [includeBursts, setIncludeBursts] = useState(false);
   const [burstRateBaseline, setBurstRateBaseline] = useState(1.0);
@@ -304,7 +304,7 @@ export default function PreviewPlayground(): JSX.Element {
         <Slider
           label="Baseline firing rate (Hz)"
           value={baselineFr}
-          min={0}
+          min={0.01}
           max={50}
           step={0.5}
           onChange={setBaselineFr}
@@ -313,7 +313,7 @@ export default function PreviewPlayground(): JSX.Element {
         <Slider
           label="Response firing rate (Hz)"
           value={responseFr}
-          min={0}
+          min={0.01}
           max={100}
           step={0.5}
           onChange={setResponseFr}
@@ -368,7 +368,7 @@ export default function PreviewPlayground(): JSX.Element {
           label="Seed"
           value={seed}
           min={0}
-          max={1000}
+          max={100000000}
           step={1}
           onChange={setSeed}
         />
@@ -390,16 +390,16 @@ export default function PreviewPlayground(): JSX.Element {
             <Slider
               label="Beta alpha (a)"
               value={a}
-              min={0.1}
-              max={10}
+              min={1}
+              max={20}
               step={0.1}
               onChange={setA}
             />
             <Slider
               label="Beta beta (b)"
               value={b}
-              min={0.1}
-              max={10}
+              min={1}
+              max={20}
               step={0.1}
               onChange={setB}
             />
@@ -422,7 +422,7 @@ export default function PreviewPlayground(): JSX.Element {
             <Slider
               label="Burst rate baseline (Hz)"
               value={burstRateBaseline}
-              min={0}
+              min={0.01}
               max={20}
               step={0.1}
               onChange={setBurstRateBaseline}
@@ -430,7 +430,7 @@ export default function PreviewPlayground(): JSX.Element {
             <Slider
               label="Burst rate response (Hz)"
               value={burstRateResponse}
-              min={0}
+              min={0.01}
               max={20}
               step={0.1}
               onChange={setBurstRateResponse}
@@ -447,14 +447,14 @@ export default function PreviewPlayground(): JSX.Element {
               label="Burst duration λ (ms)"
               value={burstDurationLam}
               min={1}
-              max={100}
+              max={300}
               step={1}
               onChange={setBurstDurationLam}
             />
             <Slider
               label="Burst alpha"
               value={burstAlpha}
-              min={0.1}
+              min={1}
               max={10}
               step={0.1}
               onChange={setBurstAlpha}
@@ -462,7 +462,7 @@ export default function PreviewPlayground(): JSX.Element {
             <Slider
               label="Burst beta"
               value={burstBeta}
-              min={0.1}
+              min={1}
               max={10}
               step={0.1}
               onChange={setBurstBeta}
@@ -471,14 +471,14 @@ export default function PreviewPlayground(): JSX.Element {
               label="Burst multiplier"
               value={burstMultiplier}
               min={1}
-              max={10}
+              max={50}
               step={0.1}
               onChange={setBurstMultiplier}
             />
           </>
         )}
 
-        <h3 style={{marginTop: '1rem'}}>Payload</h3>
+        <h3 style={{marginTop: '1rem'}}>Function Input</h3>
         <pre style={{fontSize: 12, overflowX: 'auto'}}>
           {JSON.stringify(payload, null, 2)}
         </pre>

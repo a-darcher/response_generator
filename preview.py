@@ -113,23 +113,16 @@ def generate_preview(
     
     image_base64 = fig_to_base64_png(fig)
 
-    stats = {
-        "n_trials": n_trials,
-        "baseline_fr": baseline_fr,
-        "response_fr": response_fr,
-        "latency": latency,
-        "duration": duration,
-        "baseline_T": baseline_T,
-        "stimulus_T": stimulus_T,
-        "dt": dt,
-        "include_bursts": include_bursts,
-    }
+    trial_activity = [
+    (trial - baseline_T).tolist()
+    for trial in generator.generate(n_trials)
+]
 
     warnings: list[str] = []
 
     return {
         "ok": True,
         "image_base64": image_base64,
-        "stats": stats,
+        "trial_activity": trial_activity,
         "warnings": warnings,
     }

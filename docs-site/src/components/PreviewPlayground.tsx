@@ -3,7 +3,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 type PreviewResponse = {
   ok: boolean;
   image_base64: string | null;
-  stats: Record<string, unknown>;
+  trial_activity?: number[][];
   warnings: string[];
 };
 
@@ -247,6 +247,29 @@ export default function PreviewPlayground(): JSX.Element {
     };
   }, [payload, validationErrorsMemo]);
 
+  const downloadTrialActivityCsv = () => {
+    if (!result?.trial_activity) return;
+
+    const rows = result.trial_activity.flatMap((trial, trialIndex) =>
+      trial.map((spikeTime) => `${trialIndex},${spikeTime}`)
+    );
+
+    const csv = ['trial,spike_time', ...rows].join('\n');
+
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = `trial_activity_seed_${seed}_n_${nTrials}.csv`;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+
   return (
     <div
       style={{
@@ -391,13 +414,13 @@ export default function PreviewPlayground(): JSX.Element {
           onChange={setIncludeBursts}
         />
 
-        {includeBursts && 
-        <p style={{fontStyle: 'italic', fontSize: '0.7rem', color: '#555'}}>
-          High burst rates can increase generation time. 
-        </p>
-        &&
-        (
+        {includeBursts && (
           <>
+
+          <p style={{fontStyle: 'italic', fontSize: '0.7rem', color: '#555'}}>
+          High burst rates can increase generation time. 
+          </p>
+
             <Slider
               label="Burst rate baseline"
               value={burstRateBaseline}
@@ -511,10 +534,22 @@ export default function PreviewPlayground(): JSX.Element {
               <p>No image returned.</p>
             )}
 
-            {/* <h3 style={{marginTop: '1rem'}}>Stats</h3>
-            <pre style={{overflowX: 'auto'}}>
-              {JSON.stringify(result.stats, null, 2)}
-            </pre> */}
+            {result.trial_activity && (
+              <button
+                type="button"
+                onClick={downloadTrialActivityCsv}
+                style={{
+                  marginTop: '1rem',
+                  padding: '0.5rem 0.75rem',
+                  border: '1px solid #888',
+                  borderRadius: 8,
+                  background: 'white',
+                  cursor: 'pointer',
+                }}
+              >
+                Download trial activity CSV
+              </button>
+            )}
 
             {result.warnings.length > 0 && (
               <>

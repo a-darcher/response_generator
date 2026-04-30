@@ -185,14 +185,12 @@ export default function PreviewPlayground(): JSX.Element {
     const epsilon = 1e-9;
 
     if (duration + latency > stimulusT + epsilon) {
-      errs.push("Duration exceeds latency + stimulus window");
+      errs.push("Latency + duration cannot exceed stimulus window.");
     }
 
     if (latency > stimulusT + epsilon) {
     errs.push("Latency cannot exceed stimulus window.");
   }
-
-
 
     return errs;
   }, [duration, latency, stimulusT]);
@@ -304,7 +302,7 @@ export default function PreviewPlayground(): JSX.Element {
         />
 
         <Slider
-          label="Baseline firing rate"
+          label="Baseline firing rate (Hz)"
           value={baselineFr}
           min={0}
           max={50}
@@ -313,7 +311,7 @@ export default function PreviewPlayground(): JSX.Element {
         />
 
         <Slider
-          label="Response firing rate"
+          label="Response firing rate (Hz)"
           value={responseFr}
           min={0}
           max={100}
@@ -422,7 +420,7 @@ export default function PreviewPlayground(): JSX.Element {
           </p>
 
             <Slider
-              label="Burst rate baseline"
+              label="Burst rate baseline (Hz)"
               value={burstRateBaseline}
               min={0}
               max={20}
@@ -430,7 +428,7 @@ export default function PreviewPlayground(): JSX.Element {
               onChange={setBurstRateBaseline}
             />
             <Slider
-              label="Burst rate response"
+              label="Burst rate response (Hz)"
               value={burstRateResponse}
               min={0}
               max={20}
@@ -446,7 +444,7 @@ export default function PreviewPlayground(): JSX.Element {
               onChange={setBurstRateFactor}
             />
             <Slider
-              label="Burst duration λ"
+              label="Burst duration λ (ms)"
               value={burstDurationLam}
               min={1}
               max={100}
@@ -535,6 +533,7 @@ export default function PreviewPlayground(): JSX.Element {
             )}
 
             {result.trial_activity && (
+              <div style={{display: 'flex', justifyContent: 'center', marginTop: '1rem'}}>
               <button
                 type="button"
                 onClick={downloadTrialActivityCsv}
@@ -547,8 +546,9 @@ export default function PreviewPlayground(): JSX.Element {
                   cursor: 'pointer',
                 }}
               >
-                Download trial activity CSV
+                Download response activity (CSV)
               </button>
+              </div>
             )}
 
             {result.warnings.length > 0 && (

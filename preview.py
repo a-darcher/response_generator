@@ -72,7 +72,8 @@ def generate_preview(
         debug=debug,
     )
 
-    trial_activity = [trial - baseline_T for trial in generator.generate(n_trials)]
+    trial_activity = [(trial - baseline_T).tolist()
+                    for trial in generator.generate(n_trials)]
 
     fig, axes = plt.subplots(2, 1, figsize=(8, 10), 
                             height_ratios=[2, 1])
@@ -113,10 +114,10 @@ def generate_preview(
     
     image_base64 = fig_to_base64_png(fig)
 
-    trial_activity = [
-    (trial - baseline_T).tolist()
-    for trial in generator.generate(n_trials)
-]
+#     trial_activity = [
+#     (trial - baseline_T).tolist()
+#     for trial in generator.generate(n_trials)
+# ]
 
     warnings: list[str] = []
 

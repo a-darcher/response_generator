@@ -75,14 +75,14 @@ def generate_preview(
     trial_activity = [trial - baseline_T for trial in generator.generate(n_trials)]
 
     fig, axes = plt.subplots(2, 1, figsize=(8, 10), 
-  
                             height_ratios=[2, 1])
 
     # raster asset
     ax = axes[0]
     ax.eventplot(trial_activity,)
-    ax.vlines(0, ymin=-0.5, ymax=n_trials - 0.5, color="darkgoldenrod", linestyle="--", label="Stimulus onset")
-    ax.set_title("")
+    ax.vlines(0, ymin=-0.5, ymax=n_trials - 0.5, 
+              color="darkgoldenrod", linestyle="--", label="Stimulus onset")
+    ax.set_title("Trial-wise spiking activity")
     ax.set_xlabel("Time [s]\nsimulated stimulus onset at t = 0")
     ax.set_ylabel("Trials")
 
@@ -96,19 +96,20 @@ def generate_preview(
     ax = axes[1]
     x = np.linspace(-baseline_T, stimulus_T, int((baseline_T + stimulus_T) / dt))
     ax.plot(x, generator.r_t)
-    ax.hlines(y=baseline_fr, xmin=-baseline_T, xmax=stimulus_T, color="olive", linestyle="--", alpha=0.5, label="Baseline firing rate")
-    ax.vlines(0, ymin=baseline_fr, ymax=response_fr, color="darkgoldenrod", linestyle="--", label="Stimulus onset")
+    ax.hlines(y=baseline_fr, xmin=-baseline_T, xmax=stimulus_T, 
+              color="olive", linestyle="--", alpha=0.5, label="Baseline firing rate")
+    ax.vlines(0, ymin=baseline_fr, ymax=response_fr, 
+              color="darkgoldenrod", linestyle="--", label="Stimulus onset")
 
     ax.legend(frameon=False)
 
+    ax.set_title("Rate function used to produce spiking activity")
     ax.set_xlabel("Time [s]\nsimulated stimulus onset at t = 0")
-    ax.set_ylabel("Rate Function [Hz]")
+    ax.set_ylabel("Input Firing Rate [Hz]")
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-
-
     image_base64 = fig_to_base64_png(fig)
 
     stats = {

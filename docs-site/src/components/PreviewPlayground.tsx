@@ -470,7 +470,9 @@ export default function PreviewPlayground(): JSX.Element {
         }}
       >
         <h2>Generated Response</h2>
-
+        <p style={{fontStyle: 'italic', fontSize: '0.9rem', color: '#555'}}>
+          It can take ~50 seconds to initiate the generator.
+        </p>
         {loading && <p>updating…</p>}
 
         {error && (

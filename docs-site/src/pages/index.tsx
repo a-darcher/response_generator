@@ -8,8 +8,6 @@ export default function Home(): JSX.Element {
       <main style={{maxWidth: 1000, margin: '0 auto', padding: '2rem 1rem'}}>
         <h1>Generate response rasters</h1>
         <p>Parameters used to generate response rasters. Adjust any and see the effect on the generated response.</p>
-        <p>Top panel: generated trial-wise spiking activity</p>
-        <p>Bottom panel: rate function used to produce spiking activity</p>
         <PreviewPlayground />
       </main>
     </Layout>

@@ -109,6 +109,7 @@ def generate_preview(
 
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    plt.tight_layout()
     
     image_base64 = fig_to_base64_png(fig)
 

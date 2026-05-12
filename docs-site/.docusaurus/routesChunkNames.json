@@ -1,15 +1,15 @@
 {
-  "/response_generator/docs-ca1": {
+  "/response_generator/docs-c58": {
     "__comp": "5e95c892",
     "__context": {
       "plugin": "aba21aa0"
     }
   },
-  "/response_generator/docs-c6f": {
+  "/response_generator/docs-35c": {
     "__comp": "a7bd4aaa",
     "__props": "47902300"
   },
-  "/response_generator/docs-f3d": {
+  "/response_generator/docs-2c2": {
     "__comp": "a94703ab"
   },
   "/response_generator/docs/config-617": {
@@ -19,6 +19,10 @@
   "/response_generator/docs/getting-started-6d0": {
     "__comp": "17896441",
     "content": "d589d3a7"
+  },
+  "/response_generator/docs/how-it-works-d22": {
+    "__comp": "17896441",
+    "content": "76183543"
   },
   "/response_generator/docs/intro-1df": {
     "__comp": "17896441",

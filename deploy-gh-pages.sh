@@ -16,10 +16,8 @@ fi
 echo "Building Docusaurus site..."
 cd "$SITE_DIR"
 
-if [ ! -d "node_modules" ]; then
-  echo "Installing npm dependencies..."
-  npm install
-fi
+echo "Installing npm dependencies..."
+npm install
 
 npm run build
 cd ..

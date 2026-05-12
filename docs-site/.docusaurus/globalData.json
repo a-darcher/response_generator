@@ -21,6 +21,11 @@
               "sidebar": "tutorialSidebar"
             },
             {
+              "id": "how-it-works",
+              "path": "/response_generator/docs/how-it-works",
+              "sidebar": "tutorialSidebar"
+            },
+            {
               "id": "intro",
               "path": "/response_generator/docs/intro",
               "sidebar": "tutorialSidebar"

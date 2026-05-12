@@ -13,8 +13,8 @@
   "frontMatter": {},
   "sidebar": "tutorialSidebar",
   "previous": {
-    "title": "Response Stats",
-    "permalink": "/response_generator/docs/intro"
+    "title": "How it works",
+    "permalink": "/response_generator/docs/how-it-works"
   },
   "next": {
     "title": "config",

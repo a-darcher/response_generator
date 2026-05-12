@@ -35,7 +35,13 @@ export default {
       {
         "docs": {
           "routeBasePath": "docs",
-          "sidebarPath": "./sidebars.ts"
+          "sidebarPath": "./sidebars.ts",
+          "remarkPlugins": [
+            null
+          ],
+          "rehypePlugins": [
+            null
+          ]
         },
         "blog": false,
         "theme": {
@@ -51,6 +57,11 @@ export default {
         {
           "to": "/",
           "label": "Demo",
+          "position": "left"
+        },
+        {
+          "to": "/docs/how-it-works",
+          "label": "How it works",
           "position": "left"
         },
         {
@@ -231,6 +242,13 @@ export default {
       "maxHeadingLevel": 3
     }
   },
+  "stylesheets": [
+    {
+      "href": "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css",
+      "type": "text/css",
+      "crossOrigin": "anonymous"
+    }
+  ],
   "baseUrlIssueBanner": true,
   "i18n": {
     "defaultLocale": "en",
@@ -276,7 +294,6 @@ export default {
   "themes": [],
   "scripts": [],
   "headTags": [],
-  "stylesheets": [],
   "clientModules": [],
   "titleDelimiter": "|",
   "noIndex": false
